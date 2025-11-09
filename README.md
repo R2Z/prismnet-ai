@@ -28,7 +28,15 @@ All requests require authentication using JWT or API key:
 
 **For Development/Testing:**
 - The application currently accepts any username in JWT tokens (no password validation)
-- You can generate a JWT token or use any string as an API key for testing
+- You can use any string as an API key for testing
+- **Important**: The JWT secret key must be at least 256 bits (32 characters) for HMAC-SHA algorithms
+
+**⚠️ SECURITY WARNING:**
+- The current authentication setup is for development/testing only (profiles: local, dev, test)
+- **DO NOT deploy to production** with the default JWT secret or simple API key validation
+- In production profiles, only proper JWT tokens will be accepted
+- Implement proper user authentication, password validation, and use environment variables for secrets
+- Generate a secure random 256-bit (32+ character) JWT secret for production
 
 ```bash
 # JWT (recommended for users)
@@ -44,6 +52,10 @@ curl -H "X-API-Key: YOUR_API_KEY" ...
 3. Enter any username (e.g., "test-user") in the JWT field
 4. Click "Authorize" - this will set the token for all requests
 5. Or manually set header: `Authorization: Bearer test-user`
+
+**Alternative: Use API Key header instead of JWT:**
+- Set header: `X-API-Key: test-user` (any non-empty string works for testing)
+- Or use Bearer header with simple string: `Authorization: Bearer test-user`
 
 **Required Headers for /v1/chat/completions:**
 - `Authorization: Bearer <token>` (or `X-API-Key: <key>`)

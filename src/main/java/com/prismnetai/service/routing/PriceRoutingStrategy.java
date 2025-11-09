@@ -1,17 +1,19 @@
 package com.prismnetai.service.routing;
 
-import com.prismnetai.entity.Model;
-import com.prismnetai.entity.Provider;
-import com.prismnetai.repository.ModelRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+import com.prismnetai.entity.Model;
+import com.prismnetai.entity.Provider;
+import com.prismnetai.repository.ModelRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
-@Component
+@Component("PRICE")
 @RequiredArgsConstructor
 public class PriceRoutingStrategy implements RoutingStrategy {
 

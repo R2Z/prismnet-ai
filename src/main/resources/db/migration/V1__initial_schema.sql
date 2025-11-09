@@ -84,7 +84,7 @@ CREATE TABLE provider_metric (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     provider_id BIGINT NOT NULL,
     metric_type VARCHAR(20) NOT NULL,
-    metric_value DECIMAL(10,4) NOT NULL,
+    value DECIMAL(10,4) NOT NULL,
     timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (provider_id) REFERENCES provider(id)

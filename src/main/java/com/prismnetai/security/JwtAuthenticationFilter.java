@@ -1,14 +1,9 @@
 package com.prismnetai.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
+import javax.crypto.SecretKey;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +14,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
-import java.io.IOException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -29,6 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${prismnet.jwt.secret}")
     private String jwtSecret;
+
+    @Value("${spring.profiles.active:local}")
+    private String activeProfile;
 
     private final UserDetailsService userDetailsService;
 
@@ -91,7 +96,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             String token = bearerToken.substring(7);
             log.debug("JwtAuthenticationFilter.getTokenFromRequest() - Bearer token found, length: {}", token.length());
-            return token;
+            // Check if it's a JWT token (contains dots) or simple API key
+            if (token.contains(".")) {
+                return token; // JWT token
+            } else {
+                return token; // Simple API key passed as Bearer
+            }
         }
 
         if (StringUtils.hasText(apiKey)) {
@@ -104,6 +114,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getUsernameFromToken(String token) {
+        // For development/testing profiles, allow simple API keys/usernames
+        if (isDevelopmentProfile() && !token.contains(".")) {
+            log.debug("JwtAuthenticationFilter.getUsernameFromToken() - Treating as simple API key/username: {}", token);
+            return token;
+        }
+
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
             Claims claims = Jwts.parserBuilder()
@@ -122,6 +138,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean validateToken(String token, UserDetails userDetails) {
+        // For development/testing profiles, skip JWT validation for simple API keys
+        if (isDevelopmentProfile() && !token.contains(".")) {
+            log.debug("JwtAuthenticationFilter.validateToken() - Treating as simple API key/username, validation skipped for development");
+            return true;
+        }
+
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
             Claims claims = Jwts.parserBuilder()
@@ -150,5 +172,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.warn("JwtAuthenticationFilter.isTokenExpired() - Token has expired, expiration: {}", claims.getExpiration());
         }
         return expired;
+    }
+
+    private boolean isDevelopmentProfile() {
+        return "local".equals(activeProfile) || "dev".equals(activeProfile) || "test".equals(activeProfile);
     }
 }
