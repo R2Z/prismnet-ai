@@ -67,14 +67,14 @@ curl -X POST http://localhost:8080/v1/chat/completions \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "routing_strategy": "PRICE",
+    "routingStrategy": "PRICE",
     "messages": [
       {
         "role": "user",
         "content": "Hello, how are you?"
       }
     ],
-    "max_tokens": 100
+    "maxTokens": 100
   }'
 ```
 
@@ -84,14 +84,14 @@ curl -X POST http://localhost:8080/v1/chat/completions \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "routing_strategy": "LATENCY",
+    "routingStrategy": "LATENCY",
     "messages": [
       {
         "role": "user",
         "content": "Explain quantum computing in simple terms"
       }
     ],
-    "max_tokens": 200,
+    "maxTokens": 200,
     "temperature": 0.7
   }'
   
@@ -107,7 +107,7 @@ curl -X POST http://localhost:8080/v1/routing/rules \
   -d '{
     "name": "My Preferred Order",
     "description": "Prioritize Anthropic, then OpenAI",
-    "provider_order": ["Anthropic", "OpenAI"]
+    "providerOrder": ["Anthropic", "OpenAI"]
   }'
 ```
 
@@ -117,15 +117,15 @@ curl -X POST http://localhost:8080/v1/chat/completions \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "routing_strategy": "CUSTOM_ORDER",
-    "routing_rule_id": "rule-456",
+    "routingStrategy": "CUSTOM_ORDER",
+    "routingRuleId": "rule-456",
     "messages": [
       {
         "role": "user",
         "content": "Write a haiku about artificial intelligence"
       }
     ],
-    "max_tokens": 50
+    "maxTokens": 50
   }'
 ```
 
@@ -135,14 +135,14 @@ curl -X POST http://localhost:8080/v1/chat/completions \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "routing_strategy": "AUTO",
+    "routingStrategy": "AUTO",
     "messages": [
       {
         "role": "user",
         "content": "Create a complex algorithm for sorting a list"
       }
     ],
-    "max_tokens": 300
+    "maxTokens": 300
   }'
 ```
 
