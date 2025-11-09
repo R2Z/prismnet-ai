@@ -116,6 +116,12 @@ curl -X POST http://localhost:8080/v1/chat/completions \
   }'
 ```
 
+### API Documentation
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+  - Interactive API documentation with try-it-out functionality
+  - JWT authentication support for testing endpoints
+  - Complete OpenAPI 3.0 specification
+
 ### Monitoring
 - Health check: `http://localhost:8080/actuator/health`
 - Metrics: `http://localhost:8080/actuator/metrics`
