@@ -1,0 +1,78 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+dependency-reduced-pom.xml
+release.properties
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# Maven wrapper (keep wrapper jar if you track it) - uncomment if you want to ignore the wrapper
+# .mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+nbproject/private/
+nbproject/target/
+
+# Build systems
+.gradle/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+logs/
+*.log
+*.tmp
+tmp/
+temp/
+
+# Test coverage and reports
+jacoco.exec
+coverage/
+target/site/
+target/jacoco*
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+secrets.*
+credentials.*
+*.secret
+
+# Docker local overrides
+docker-compose.override.yml
+
+# Misc
+*.db
+*.sqlite
+*.swp
+*~
+.kilocode/
+.kilocodemodes
+.specify/
+/specs/
