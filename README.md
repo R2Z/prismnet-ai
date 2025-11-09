@@ -25,6 +25,11 @@ A unified API layer for routing AI requests across hundreds of models from multi
 
 #### Authentication
 All requests require authentication using JWT or API key:
+
+**For Development/Testing:**
+- The application currently accepts any username in JWT tokens (no password validation)
+- You can generate a JWT token or use any string as an API key for testing
+
 ```bash
 # JWT (recommended for users)
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" ...
@@ -32,6 +37,17 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" ...
 # API Key (for service accounts)
 curl -H "X-API-Key: YOUR_API_KEY" ...
 ```
+
+**To get a Bearer token for Postman:**
+1. Use Swagger UI at `http://localhost:8080/swagger-ui.html`
+2. Click "Authorize" button in the top right
+3. Enter any username (e.g., "test-user") in the JWT field
+4. Click "Authorize" - this will set the token for all requests
+5. Or manually set header: `Authorization: Bearer test-user`
+
+**Required Headers for /v1/chat/completions:**
+- `Authorization: Bearer <token>` (or `X-API-Key: <key>`)
+- `Content-Type: application/json`
 
 #### Route by Price (Default)
 ```bash
@@ -66,6 +82,8 @@ curl -X POST http://localhost:8080/v1/chat/completions \
     "max_tokens": 200,
     "temperature": 0.7
   }'
+  
+  
 ```
 
 #### Custom Provider Ordering
