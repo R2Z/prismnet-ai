@@ -53,7 +53,7 @@ class PriceRoutingStrategyTest {
         when(modelRepository.findActiveModelsOrderedByLowestCost()).thenReturn(modelsOrderedByCost);
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -70,7 +70,7 @@ class PriceRoutingStrategyTest {
         when(modelRepository.findActiveModelsOrderedByLowestCost()).thenReturn(modelsOrderedByCost);
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -84,7 +84,7 @@ class PriceRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -99,7 +99,7 @@ class PriceRoutingStrategyTest {
         when(modelRepository.findActiveModelsOrderedByLowestCost()).thenReturn(modelsOrderedByCost);
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -114,7 +114,7 @@ class PriceRoutingStrategyTest {
         when(modelRepository.findActiveModelsOrderedByLowestCost()).thenReturn(modelsOrderedByCost);
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -136,7 +136,7 @@ class PriceRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When & Then
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
         assertThat(result).isEmpty();
     }
 
@@ -146,7 +146,7 @@ class PriceRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -165,7 +165,7 @@ class PriceRoutingStrategyTest {
         when(modelRepository.findActiveModelsOrderedByLowestCost()).thenReturn(modelsOrderedByCost);
 
         // When
-        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = priceRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();

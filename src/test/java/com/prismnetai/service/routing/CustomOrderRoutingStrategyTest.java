@@ -66,7 +66,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -85,7 +85,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -99,7 +99,7 @@ class CustomOrderRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -116,7 +116,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -131,7 +131,7 @@ class CustomOrderRoutingStrategyTest {
         when(routingRuleRepository.findActiveRulesByUserIdOrderedById(anyString())).thenReturn(activeRules);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -149,7 +149,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -170,7 +170,7 @@ class CustomOrderRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -182,7 +182,7 @@ class CustomOrderRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -200,7 +200,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -220,7 +220,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();

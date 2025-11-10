@@ -69,7 +69,7 @@ class ThroughputRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(throughputMetrics);
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -88,7 +88,7 @@ class ThroughputRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(throughputMetrics);
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -101,7 +101,7 @@ class ThroughputRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -116,7 +116,7 @@ class ThroughputRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -133,7 +133,7 @@ class ThroughputRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(throughputMetrics);
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -154,7 +154,7 @@ class ThroughputRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -166,7 +166,7 @@ class ThroughputRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -189,7 +189,7 @@ class ThroughputRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(throughputMetrics);
 
         // When
-        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = throughputRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();

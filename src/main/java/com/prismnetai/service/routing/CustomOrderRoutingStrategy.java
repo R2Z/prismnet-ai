@@ -33,7 +33,7 @@ public class CustomOrderRoutingStrategy implements RoutingStrategy {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Optional<Model> selectModel(List<Provider> availableProviders, String userId) {
+    public Optional<Model> selectModel(List<Provider> availableProviders, String userId, String preferredModel) {
         log.info("CustomOrderRoutingStrategy.selectModel() - Starting custom order-based model selection");
 
         if (availableProviders == null) {

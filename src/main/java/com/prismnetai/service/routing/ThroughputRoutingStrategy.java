@@ -28,7 +28,7 @@ public class ThroughputRoutingStrategy implements RoutingStrategy {
     private final Duration metricsLookbackDuration;
 
     @Override
-    public Optional<Model> selectModel(List<Provider> availableProviders, String userId) {
+    public Optional<Model> selectModel(List<Provider> availableProviders, String userId, String preferredModel) {
         log.info("ThroughputRoutingStrategy.selectModel() - Starting throughput-based model selection");
 
         if (availableProviders == null) {

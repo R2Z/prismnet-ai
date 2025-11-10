@@ -16,13 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.entity.ProviderMetric;
 import com.prismnetai.repository.ModelRepository;
 import com.prismnetai.repository.ProviderMetricRepository;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class LatencyRoutingStrategyTest {
@@ -69,7 +69,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -88,7 +88,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -101,7 +101,7 @@ class LatencyRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -116,7 +116,7 @@ class LatencyRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -133,7 +133,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -154,7 +154,7 @@ class LatencyRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -166,7 +166,7 @@ class LatencyRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -189,7 +189,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();

@@ -75,7 +75,7 @@ class AutoRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(metrics);
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -100,7 +100,7 @@ class AutoRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(metrics);
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -119,7 +119,7 @@ class AutoRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(metrics);
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -132,7 +132,7 @@ class AutoRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -147,7 +147,7 @@ class AutoRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -168,7 +168,7 @@ class AutoRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -180,7 +180,7 @@ class AutoRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isEmpty();
@@ -198,7 +198,7 @@ class AutoRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(metrics);
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();
@@ -223,7 +223,7 @@ class AutoRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(metrics);
 
         // When
-        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user");
+        Optional<Model> result = autoRoutingStrategy.selectModel(availableProviders, "test-user", null);
 
         // Then
         assertThat(result).isPresent();

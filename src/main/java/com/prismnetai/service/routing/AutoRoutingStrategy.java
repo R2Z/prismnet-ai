@@ -44,7 +44,7 @@ public class AutoRoutingStrategy implements RoutingStrategy {
      * @return Optional containing the selected model, empty if no suitable model found
      */
     @Override
-    public Optional<Model> selectModel(List<Provider> availableProviders, String userId) {
+    public Optional<Model> selectModel(List<Provider> availableProviders, String userId, String preferredModel) {
         log.info("AutoRoutingStrategy.selectModel() - Starting auto intelligent model selection");
 
         // Input validation

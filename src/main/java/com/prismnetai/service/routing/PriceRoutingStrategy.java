@@ -20,7 +20,7 @@ public class PriceRoutingStrategy implements RoutingStrategy {
     private final ModelRepository modelRepository;
 
     @Override
-    public Optional<Model> selectModel(List<Provider> availableProviders, String userId) {
+    public Optional<Model> selectModel(List<Provider> availableProviders, String userId, String preferredModel) {
         log.info("PriceRoutingStrategy.selectModel() - Starting price-based model selection");
 
         if (availableProviders == null) {

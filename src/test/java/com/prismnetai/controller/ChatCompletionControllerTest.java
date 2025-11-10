@@ -114,7 +114,7 @@ class ChatCompletionControllerTest {
         // Given
         ChatCompletionRequest request = createValidRequest("PRICE");
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello, how are you?"), eq(100))).thenReturn(aiRequest);
+                eq("Hello, how are you?"), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -158,7 +158,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(50);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Tell me a joke"), eq(50))).thenReturn(aiRequest);
+                eq("Tell me a joke"), eq(50), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -269,7 +269,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(100);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("No user message found"), eq(100))).thenReturn(aiRequest);
+                eq("No user message found"), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -287,7 +287,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(null);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(null))).thenReturn(aiRequest);
+                eq("Hello"), eq(null), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -305,7 +305,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(0);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(0))).thenReturn(aiRequest);
+                eq("Hello"), eq(0), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -323,7 +323,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(-1);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(-1))).thenReturn(aiRequest);
+                eq("Hello"), eq(-1), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -341,7 +341,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(10000);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(10000))).thenReturn(aiRequest);
+                eq("Hello"), eq(10000), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -359,7 +359,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(100);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq(""), eq(100))).thenReturn(aiRequest);
+                eq(""), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
@@ -378,7 +378,7 @@ class ChatCompletionControllerTest {
         request.setMaxTokens(100);
 
         when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq(longMessage), eq(100))).thenReturn(aiRequest);
+                eq(longMessage), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);

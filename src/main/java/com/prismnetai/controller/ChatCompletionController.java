@@ -58,7 +58,8 @@ public class ChatCompletionController {
             userId,
             AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase()),
             prompt,
-            request.getMaxTokens()
+            request.getMaxTokens(),
+            request.getPreferredModel()
         );
 
         log.info("ChatCompletionController.createCompletion() - Request routed successfully, requestId: {}, selectedModel: {}, selectedProvider: {}",

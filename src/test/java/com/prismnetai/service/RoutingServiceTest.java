@@ -76,7 +76,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(selectedModel);
+        when(mockPriceStrategy.selectModel(availableProviders, userId, null)).thenReturn(selectedModel);
         when(aiRequestRepository.save(any(AiRequest.class))).thenAnswer(invocation -> {
             AiRequest req = invocation.getArgument(0);
             req.setId(100L);
@@ -84,7 +84,7 @@ class RoutingServiceTest {
         });
 
         // When
-        AiRequest result = routingService.routeRequest(userId, strategy, prompt, maxTokens);
+        AiRequest result = routingService.routeRequest(userId, strategy, prompt, maxTokens, null);
 
         // Then
         assertThat(result).isNotNull();
@@ -99,7 +99,7 @@ class RoutingServiceTest {
 
         verify(providerRepository).findByIsActiveTrue();
         verify(routingStrategies).get("PRICE");
-        verify(mockPriceStrategy).selectModel(availableProviders, userId);
+        verify(mockPriceStrategy).selectModel(availableProviders, userId, null);
         verify(aiRequestRepository).save(any(AiRequest.class));
     }
 
@@ -114,7 +114,7 @@ class RoutingServiceTest {
         when(providerRepository.findByIsActiveTrue()).thenReturn(List.of());
 
         // When & Then
-        assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens))
+        assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens, null))
                 .isInstanceOf(com.prismnetai.exception.RoutingException.class)
                 .hasMessage("No active providers available for routing");
 
@@ -135,7 +135,7 @@ class RoutingServiceTest {
         when(routingStrategies.get("PRICE")).thenReturn(null);
 
         // When & Then
-        assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens))
+        assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown routing strategy: PRICE");
 
@@ -155,16 +155,16 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(Optional.empty());
+        when(mockPriceStrategy.selectModel(availableProviders, userId, null)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens))
+        assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens, null))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("No suitable model found for routing strategy: PRICE");
 
         verify(providerRepository).findByIsActiveTrue();
         verify(routingStrategies).get("PRICE");
-        verify(mockPriceStrategy).selectModel(availableProviders, userId);
+        verify(mockPriceStrategy).selectModel(availableProviders, userId, null);
     }
 
     @Test
@@ -236,7 +236,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(selectedModel);
+        when(mockPriceStrategy.selectModel(availableProviders, userId, null)).thenReturn(selectedModel);
         when(aiRequestRepository.save(any(AiRequest.class))).thenAnswer(invocation -> {
             AiRequest req = invocation.getArgument(0);
             req.setId(100L);
@@ -244,7 +244,7 @@ class RoutingServiceTest {
         });
 
         // When
-        AiRequest result = routingService.routeRequest(userId, strategy, prompt, maxTokens);
+        AiRequest result = routingService.routeRequest(userId, strategy, prompt, maxTokens, null);
 
         // Then
         assertThat(result).isNotNull();
@@ -264,7 +264,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(selectedModel);
+        when(mockPriceStrategy.selectModel(availableProviders, userId, null)).thenReturn(selectedModel);
         when(aiRequestRepository.save(any(AiRequest.class))).thenAnswer(invocation -> {
             AiRequest req = invocation.getArgument(0);
             req.setId(100L);
@@ -272,7 +272,7 @@ class RoutingServiceTest {
         });
 
         // When
-        AiRequest result = routingService.routeRequest(userId, strategy, prompt, maxTokens);
+        AiRequest result = routingService.routeRequest(userId, strategy, prompt, maxTokens, null);
 
         // Then
         assertThat(result).isNotNull();

@@ -16,6 +16,7 @@ public class ChatCompletionRequest {
 
     private String routingStrategy;
     private String routingRuleId;
+    private String preferredModel;
     private List<ChatMessage> messages;
     private Integer maxTokens = 100;
     private BigDecimal temperature = BigDecimal.valueOf(1.0);

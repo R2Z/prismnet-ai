@@ -35,13 +35,14 @@ public class RoutingService {
      * @param routingStrategy the routing strategy to use for model selection
      * @param prompt the text prompt for the AI request
      * @param maxTokens the maximum number of tokens to generate (can be null)
+     * @param preferredModel the preferred model ID (can be null)
      * @return the created AiRequest entity with routing information
      * @throws RoutingException if routing fails due to no available providers or models
      * @throws IllegalArgumentException if input parameters are invalid
      */
     @Transactional
     public AiRequest routeRequest(String userId, AiRequest.RoutingStrategy routingStrategy,
-                                   String prompt, Integer maxTokens) {
+                                    String prompt, Integer maxTokens, String preferredModel) {
 
         // Input validation
         validateRouteRequestInputs(userId, routingStrategy, prompt);
@@ -60,7 +61,7 @@ public class RoutingService {
         RoutingStrategy strategy = getRoutingStrategy(routingStrategy);
 
         // Select model using strategy
-        Optional<Model> selectedModel = strategy.selectModel(availableProviders, userId);
+        Optional<Model> selectedModel = strategy.selectModel(availableProviders, userId, preferredModel);
         if (selectedModel.isEmpty()) {
             log.error("RoutingService.routeRequest() - No suitable model found for strategy: {} among {} providers",
                        routingStrategy, availableProviders.size());
