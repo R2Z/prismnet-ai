@@ -42,20 +42,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        log.debug("JwtAuthenticationFilter.doFilterInternal() - Processing request: {} {}",
+        log.info("JwtAuthenticationFilter.doFilterInternal() - Processing request: {} {}",
                   request.getMethod(), request.getRequestURI());
 
         final String token = getTokenFromRequest(request);
 
         if (StringUtils.hasText(token)) {
-            log.debug("JwtAuthenticationFilter.doFilterInternal() - Token found in request, attempting authentication");
+            log.info("JwtAuthenticationFilter.doFilterInternal() - Token found in request, attempting authentication");
 
             try {
                 final String username = getUsernameFromToken(token);
-                log.debug("JwtAuthenticationFilter.doFilterInternal() - Extracted username from token: {}", username);
+                log.info("JwtAuthenticationFilter.doFilterInternal() - Extracted username from token: {}", username);
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    log.debug("JwtAuthenticationFilter.doFilterInternal() - No existing authentication, loading user details for: {}", username);
+                    log.info("JwtAuthenticationFilter.doFilterInternal() - No existing authentication, loading user details for: {}", username);
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -71,21 +71,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                        log.debug("JwtAuthenticationFilter.doFilterInternal() - Authentication set in security context for user: {}", username);
+                        log.info("JwtAuthenticationFilter.doFilterInternal() - Authentication set in security context for user: {}", username);
                     } else {
                         log.warn("JwtAuthenticationFilter.doFilterInternal() - Token validation failed for user: {}", username);
                     }
                 } else {
-                    log.debug("JwtAuthenticationFilter.doFilterInternal() - Authentication already exists or username is null");
+                    log.info("JwtAuthenticationFilter.doFilterInternal() - Authentication already exists or username is null");
                 }
             } catch (Exception e) {
                 log.error("JwtAuthenticationFilter.doFilterInternal() - Cannot set user authentication for token: {}", e.getMessage(), e);
             }
         } else {
-            log.debug("JwtAuthenticationFilter.doFilterInternal() - No token found in request, proceeding without authentication");
+            log.info("JwtAuthenticationFilter.doFilterInternal() - No token found in request, proceeding without authentication");
         }
 
-        log.debug("JwtAuthenticationFilter.doFilterInternal() - Filter processing completed");
+        log.info("JwtAuthenticationFilter.doFilterInternal() - Filter processing completed");
         filterChain.doFilter(request, response);
     }
 
@@ -95,7 +95,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             String token = bearerToken.substring(7);
-            log.debug("JwtAuthenticationFilter.getTokenFromRequest() - Bearer token found, length: {}", token.length());
+            log.info("JwtAuthenticationFilter.getTokenFromRequest() - Bearer token found, length: {}", token.length());
             // Check if it's a JWT token (contains dots) or simple API key
             if (token.contains(".")) {
                 return token; // JWT token
@@ -105,18 +105,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (StringUtils.hasText(apiKey)) {
-            log.debug("JwtAuthenticationFilter.getTokenFromRequest() - API key found, length: {}", apiKey.length());
+            log.info("JwtAuthenticationFilter.getTokenFromRequest() - API key found, length: {}", apiKey.length());
             return apiKey;
         }
 
-        log.debug("JwtAuthenticationFilter.getTokenFromRequest() - No authentication token found");
+        log.info("JwtAuthenticationFilter.getTokenFromRequest() - No authentication token found");
         return null;
     }
 
     private String getUsernameFromToken(String token) {
         // For development/testing profiles, allow simple API keys/usernames
         if (isDevelopmentProfile() && !token.contains(".")) {
-            log.debug("JwtAuthenticationFilter.getUsernameFromToken() - Treating as simple API key/username: {}", token);
+            log.info("JwtAuthenticationFilter.getUsernameFromToken() - Treating as simple API key/username: {}", token);
             return token;
         }
 
@@ -129,7 +129,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .getBody();
 
             String username = claims.getSubject();
-            log.debug("JwtAuthenticationFilter.getUsernameFromToken() - Successfully extracted username: {}", username);
+            log.info("JwtAuthenticationFilter.getUsernameFromToken() - Successfully extracted username: {}", username);
             return username;
         } catch (Exception e) {
             log.error("JwtAuthenticationFilter.getUsernameFromToken() - Failed to extract username from token: {}", e.getMessage());
@@ -140,7 +140,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private boolean validateToken(String token, UserDetails userDetails) {
         // For development/testing profiles, skip JWT validation for simple API keys
         if (isDevelopmentProfile() && !token.contains(".")) {
-            log.debug("JwtAuthenticationFilter.validateToken() - Treating as simple API key/username, validation skipped for development");
+            log.info("JwtAuthenticationFilter.validateToken() - Treating as simple API key/username, validation skipped for development");
             return true;
         }
 
@@ -156,7 +156,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             boolean isValidUsername = username.equals(userDetails.getUsername());
             boolean isNotExpired = !isTokenExpired(claims);
 
-            log.debug("JwtAuthenticationFilter.validateToken() - Token validation for user: {}, username match: {}, not expired: {}",
+            log.info("JwtAuthenticationFilter.validateToken() - Token validation for user: {}, username match: {}, not expired: {}",
                       username, isValidUsername, isNotExpired);
 
             return isValidUsername && isNotExpired;

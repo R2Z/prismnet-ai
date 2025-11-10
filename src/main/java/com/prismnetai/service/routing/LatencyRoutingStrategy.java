@@ -41,7 +41,7 @@ public class LatencyRoutingStrategy implements RoutingStrategy {
             return Optional.empty();
         }
 
-        log.debug("LatencyRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
+        log.info("LatencyRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
                   availableProviders.size(),
                   availableProviders.stream().map(Provider::getName).toList());
 
@@ -54,7 +54,7 @@ public class LatencyRoutingStrategy implements RoutingStrategy {
         List<ProviderMetric> latencyMetrics = providerMetricRepository
                 .findRecentMetricsByProvidersAndType(providerIds, ProviderMetric.MetricType.LATENCY, since);
 
-        log.debug("LatencyRoutingStrategy.selectModel() - Found {} latency metrics",
+        log.info("LatencyRoutingStrategy.selectModel() - Found {} latency metrics",
                   latencyMetrics.size());
 
         // Group metrics by provider and get the latest value for each
@@ -75,7 +75,7 @@ public class LatencyRoutingStrategy implements RoutingStrategy {
                     boolean isAvailable = providerIds.contains(model.getProvider().getId());
                     ProviderMetric latencyMetric = latestLatencyByProvider.get(model.getProvider().getId());
                     boolean hasLatencyData = latencyMetric != null;
-                    log.debug("LatencyRoutingStrategy.selectModel() - Model {} from provider {} is available: {}, has latency data: {}",
+                    log.info("LatencyRoutingStrategy.selectModel() - Model {} from provider {} is available: {}, has latency data: {}",
                               model.getModelId(), model.getProvider().getName(), isAvailable, hasLatencyData);
                     return isAvailable && hasLatencyData;
                 })

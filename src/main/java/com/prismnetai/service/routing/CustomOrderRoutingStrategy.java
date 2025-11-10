@@ -46,13 +46,13 @@ public class CustomOrderRoutingStrategy implements RoutingStrategy {
             return Optional.empty();
         }
 
-        log.debug("CustomOrderRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
+        log.info("CustomOrderRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
                   availableProviders.size(),
                   availableProviders.stream().map(Provider::getName).toList());
 
         // Determine the effective user ID: use provided userId if not null, otherwise use default
         String effectiveUserId = userId != null ? userId : defaultUserId;
-        log.debug("CustomOrderRoutingStrategy.selectModel() - Using userId: {} (provided: {}, default: {})",
+        log.info("CustomOrderRoutingStrategy.selectModel() - Using userId: {} (provided: {}, default: {})",
                   effectiveUserId, userId, defaultUserId);
 
         // Get active routing rules for the effective user
@@ -76,7 +76,7 @@ public class CustomOrderRoutingStrategy implements RoutingStrategy {
 
         // Iterate over active rules to find a suitable model
         for (RoutingRule rule : activeRules) {
-            log.debug("CustomOrderRoutingStrategy.selectModel() - Evaluating routing rule: {} with provider order: {}",
+            log.info("CustomOrderRoutingStrategy.selectModel() - Evaluating routing rule: {} with provider order: {}",
                       rule.getName(), rule.getProviderOrder());
 
             // Parse provider order from the rule
@@ -100,7 +100,7 @@ public class CustomOrderRoutingStrategy implements RoutingStrategy {
                     .filter(model -> {
                         boolean isAvailable = providerIds.contains(model.getProvider().getId());
                         boolean hasPriority = providerPriority.containsKey(model.getProvider().getId());
-                        log.debug("CustomOrderRoutingStrategy.selectModel() - Model {} from provider {} is available: {}, has priority: {}",
+                        log.info("CustomOrderRoutingStrategy.selectModel() - Model {} from provider {} is available: {}, has priority: {}",
                                   model.getModelId(), model.getProvider().getName(), isAvailable, hasPriority);
                         return isAvailable && hasPriority;
                     })

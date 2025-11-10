@@ -41,7 +41,7 @@ public class ThroughputRoutingStrategy implements RoutingStrategy {
             return Optional.empty();
         }
 
-        log.debug("ThroughputRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
+        log.info("ThroughputRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
                   availableProviders.size(),
                   availableProviders.stream().map(Provider::getName).toList());
 
@@ -53,7 +53,7 @@ public class ThroughputRoutingStrategy implements RoutingStrategy {
         List<ProviderMetric> throughputMetrics = providerMetricRepository
                 .findRecentMetricsByProvidersAndType(providerIds, ProviderMetric.MetricType.THROUGHPUT, since);
 
-        log.debug("ThroughputRoutingStrategy.selectModel() - Found {} throughput metrics",
+        log.info("ThroughputRoutingStrategy.selectModel() - Found {} throughput metrics",
                   throughputMetrics.size());
 
         // Group metrics by provider and get the latest value for each
@@ -74,7 +74,7 @@ public class ThroughputRoutingStrategy implements RoutingStrategy {
                     boolean isAvailable = providerIds.contains(model.getProvider().getId());
                     ProviderMetric throughputMetric = latestThroughputByProvider.get(model.getProvider().getId());
                     boolean hasThroughputData = throughputMetric != null;
-                    log.debug("ThroughputRoutingStrategy.selectModel() - Model {} from provider {} is available: {}, has throughput data: {}",
+                    log.info("ThroughputRoutingStrategy.selectModel() - Model {} from provider {} is available: {}, has throughput data: {}",
                               model.getModelId(), model.getProvider().getName(), isAvailable, hasThroughputData);
                     return isAvailable && hasThroughputData;
                 })

@@ -33,12 +33,12 @@ public class PriceRoutingStrategy implements RoutingStrategy {
             return Optional.empty();
         }
 
-        log.debug("PriceRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
+        log.info("PriceRoutingStrategy.selectModel() - Evaluating {} available providers: {}",
                   availableProviders.size(),
                   availableProviders.stream().map(Provider::getName).toList());
 
         List<Model> activeModels = modelRepository.findActiveModelsOrderedByLowestCost();
-        log.debug("PriceRoutingStrategy.selectModel() - Found {} active models ordered by cost",
+        log.info("PriceRoutingStrategy.selectModel() - Found {} active models ordered by cost",
                   activeModels.size());
 
         // Filter models by available providers
@@ -49,7 +49,7 @@ public class PriceRoutingStrategy implements RoutingStrategy {
         Optional<Model> selectedModel = activeModels.stream()
                 .filter(model -> {
                     boolean isAvailable = providerIds.contains(model.getProvider().getId());
-                    log.debug("PriceRoutingStrategy.selectModel() - Model {} from provider {} is {}",
+                    log.info("PriceRoutingStrategy.selectModel() - Model {} from provider {} is {}",
                               model.getModelId(), model.getProvider().getName(),
                               isAvailable ? "available" : "not available");
                     return isAvailable;

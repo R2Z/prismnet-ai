@@ -9,9 +9,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,6 +29,9 @@ import com.prismnetai.entity.AiRequest;
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.service.RoutingService;
+import com.prismnetai.service.provider.AiProviderService;
+import com.prismnetai.service.provider.ProviderServiceRegistry;
+import com.prismnetai.validation.ChatCompletionRequestValidator;
 
 @ExtendWith(MockitoExtension.class)
 class ChatCompletionControllerTest {
@@ -35,6 +41,12 @@ class ChatCompletionControllerTest {
 
     @Mock
     private WebClient webClient;
+
+    @Mock
+    private ChatCompletionRequestValidator validator;
+
+    @Mock
+    private ProviderServiceRegistry providerServiceRegistry;
 
     @InjectMocks
     private ChatCompletionController controller;
@@ -61,6 +73,40 @@ class ChatCompletionControllerTest {
         aiRequest.setSelectedProvider(provider);
         aiRequest.setSelectedModel(model);
         aiRequest.setStatus(AiRequest.RequestStatus.PENDING);
+
+        // Mock validator to do nothing for valid requests
+        // For invalid requests, we'll mock it to throw exceptions in specific tests
+
+        // Mock provider service registry to return a mock provider service
+        AiProviderService mockProviderService = mock(AiProviderService.class);
+        lenient().when(providerServiceRegistry.getProviderService("OpenAI")).thenReturn(mockProviderService);
+
+        // Mock the provider service to return a ChatCompletionResponse
+        ChatCompletionResponse mockResponse = ChatCompletionResponse.builder()
+            .id("chatcmpl-100")
+            .object("chat.completion")
+            .created(1234567890)
+            .model("gpt-4")
+            .routingInfo(ChatCompletionResponse.RoutingInfo.builder()
+                .strategy("PRICE")
+                .provider("OpenAI")
+                .build())
+            .choices(List.of(ChatCompletionResponse.ChatChoice.builder()
+                .index(0)
+                .message(ChatCompletionResponse.ChatMessage.builder()
+                    .role("assistant")
+                    .content("Hello! I'm doing well, thank you for asking.")
+                    .build())
+                .finishReason("stop")
+                .build()))
+            .usage(ChatCompletionResponse.Usage.builder()
+                .promptTokens(10)
+                .completionTokens(20)
+                .totalTokens(30)
+                .cost(BigDecimal.valueOf(0.001))
+                .build())
+            .build();
+        lenient().when(mockProviderService.callCompletion(any(ChatCompletionRequest.class), eq(aiRequest))).thenReturn(mockResponse);
     }
 
     @Test
@@ -129,6 +175,9 @@ class ChatCompletionControllerTest {
         request.setMessages(null);
         request.setMaxTokens(100);
 
+        // Mock validator to throw IllegalArgumentException for null messages
+        doThrow(new IllegalArgumentException("Messages are required")).when(validator).validate(request);
+
         // When & Then
         assertThatThrownBy(() -> controller.createCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -142,6 +191,9 @@ class ChatCompletionControllerTest {
         request.setRoutingStrategy("PRICE");
         request.setMessages(List.of());
         request.setMaxTokens(100);
+
+        // Mock validator to throw IllegalArgumentException for empty messages
+        doThrow(new IllegalArgumentException("Messages are required")).when(validator).validate(request);
 
         // When & Then
         assertThatThrownBy(() -> controller.createCompletion(request, authentication))
@@ -157,6 +209,9 @@ class ChatCompletionControllerTest {
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
+        // Mock validator to throw IllegalArgumentException for null routing strategy
+        doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
+
         // When & Then
         assertThatThrownBy(() -> controller.createCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -171,6 +226,9 @@ class ChatCompletionControllerTest {
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
+        // Mock validator to throw IllegalArgumentException for empty routing strategy
+        doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
+
         // When & Then
         assertThatThrownBy(() -> controller.createCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -184,6 +242,9 @@ class ChatCompletionControllerTest {
         request.setRoutingStrategy("   ");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
+
+        // Mock validator to throw IllegalArgumentException for whitespace-only routing strategy
+        doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
         assertThatThrownBy(() -> controller.createCompletion(request, authentication))

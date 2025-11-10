@@ -1,6 +1,9 @@
 package com.prismnetai.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -8,9 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -41,7 +42,7 @@ public class GlobalExceptionHandler {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
-            log.debug("GlobalExceptionHandler.handleValidationException() - Field validation error: {} - {}", fieldName, errorMessage);
+            log.info("GlobalExceptionHandler.handleValidationException() - Field validation error: {} - {}", fieldName, errorMessage);
         });
 
         ValidationErrorResponse response = new ValidationErrorResponse("VALIDATION_ERROR", "Validation failed", errors);
@@ -54,6 +55,15 @@ public class GlobalExceptionHandler {
         log.warn("GlobalExceptionHandler.handleIllegalArgumentException() - Illegal argument provided: {}", e.getMessage());
         ErrorResponse response = new ErrorResponse("INVALID_ARGUMENT", e.getMessage());
         log.info("GlobalExceptionHandler.handleIllegalArgumentException() - Returning BAD_REQUEST response for invalid argument");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleValidationException(ValidationException e) {
+        log.warn("GlobalExceptionHandler.handleValidationException() - Validation failed: {}", e.getMessage());
+
+        ValidationErrorResponse response = new ValidationErrorResponse("VALIDATION_ERROR", e.getMessage(), e.getValidationErrors());
+        log.info("GlobalExceptionHandler.handleValidationException() - Returning BAD_REQUEST response with validation errors");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
