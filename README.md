@@ -146,6 +146,108 @@ curl -X POST http://localhost:8080/v1/chat/completions \
   }'
 ```
 
+## Routing Strategy Samples
+
+Below are sample JSON request strings for each routing strategy. These can be used in the request body for POST `/v1/chat/completions`.
+
+### PRICE
+```json
+{
+ "routingStrategy": "PRICE",
+ "messages": [
+   {
+     "role": "user",
+     "content": "Hello, how are you?"
+   }
+ ],
+ "maxTokens": 100,
+ "temperature": 1.0,
+ "stream": false
+}
+```
+
+### THROUGHPUT
+```json
+{
+ "routingStrategy": "THROUGHPUT",
+ "messages": [
+   {
+     "role": "user",
+     "content": "Generate a list of 10 random numbers."
+   }
+ ],
+ "maxTokens": 150,
+ "temperature": 0.5,
+ "stream": false
+}
+```
+
+### LATENCY
+```json
+{
+ "routingStrategy": "LATENCY",
+ "messages": [
+   {
+     "role": "user",
+     "content": "Explain quantum computing in simple terms."
+   }
+ ],
+ "maxTokens": 200,
+ "temperature": 0.7,
+ "stream": false
+}
+```
+
+### CUSTOM_ORDER
+```json
+{
+ "routingStrategy": "CUSTOM_ORDER",
+ "routingRuleId": "rule-456",
+ "messages": [
+   {
+     "role": "user",
+     "content": "Write a haiku about artificial intelligence."
+   }
+ ],
+ "maxTokens": 50,
+ "temperature": 1.0,
+ "stream": false
+}
+```
+
+### AUTO
+```json
+{
+ "routingStrategy": "AUTO",
+ "messages": [
+   {
+     "role": "user",
+     "content": "Create a complex algorithm for sorting a list."
+   }
+ ],
+ "maxTokens": 300,
+ "temperature": 0.8,
+ "stream": false
+}
+```
+
+### PREFERRED_MODEL
+```json
+{
+ "routingStrategy": "PREFERRED_MODEL",
+ "preferredModel": "gpt-4",
+ "messages": [
+   {
+     "role": "user",
+     "content": "Summarize the benefits of renewable energy."
+   }
+ ],
+ "maxTokens": 250,
+ "temperature": 0.9,
+ "stream": false
+}
+```
+
 ### API Documentation
 - **Swagger UI**: `http://localhost:8080/swagger-ui.html`
   - Interactive API documentation with try-it-out functionality
