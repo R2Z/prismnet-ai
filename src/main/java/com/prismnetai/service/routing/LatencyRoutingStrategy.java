@@ -28,7 +28,7 @@ public class LatencyRoutingStrategy implements RoutingStrategy {
     private final Duration metricsLookbackDuration;
 
     @Override
-    public Optional<Model> selectModel(List<Provider> availableProviders) {
+    public Optional<Model> selectModel(List<Provider> availableProviders, String userId) {
         log.info("LatencyRoutingStrategy.selectModel() - Starting latency-based model selection");
 
         if (availableProviders == null) {

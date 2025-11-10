@@ -52,7 +52,7 @@ class CustomOrderRoutingStrategyTest {
         model2 = createModel(2L, provider2, "claude-3-opus");
         model3 = createModel(3L, provider3, "gemini-pro");
 
-        routingRule = createRoutingRule("OpenAI,Anthropic,Google");
+        routingRule = createRoutingRule("[\"OpenAI\",\"Anthropic\",\"Google\"]");
     }
 
     @Test
@@ -66,7 +66,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();
@@ -85,7 +85,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();
@@ -99,7 +99,7 @@ class CustomOrderRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -116,7 +116,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -131,7 +131,7 @@ class CustomOrderRoutingStrategyTest {
         when(routingRuleRepository.findActiveRulesByUserIdOrderedById(anyString())).thenReturn(activeRules);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -149,7 +149,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -170,7 +170,7 @@ class CustomOrderRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -182,7 +182,7 @@ class CustomOrderRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -191,7 +191,7 @@ class CustomOrderRoutingStrategyTest {
     @Test
     void shouldHandleRoutingRuleWithSpacesInProviderOrder() {
         // Given
-        RoutingRule ruleWithSpaces = createRoutingRule("OpenAI, Anthropic, Google");
+        RoutingRule ruleWithSpaces = createRoutingRule("[\"OpenAI\", \"Anthropic\", \"Google\"]");
         List<Provider> availableProviders = List.of(provider1, provider2, provider3);
         List<Model> activeModels = List.of(model1, model2, model3);
         List<RoutingRule> activeRules = List.of(ruleWithSpaces);
@@ -200,7 +200,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();
@@ -210,8 +210,8 @@ class CustomOrderRoutingStrategyTest {
     @Test
     void shouldUseFirstActiveRule_whenMultipleRulesExist() {
         // Given
-        RoutingRule rule1 = createRoutingRule("Anthropic,OpenAI,Google"); // Different order
-        RoutingRule rule2 = createRoutingRule("OpenAI,Anthropic,Google");
+        RoutingRule rule1 = createRoutingRule("[\"Anthropic\",\"OpenAI\",\"Google\"]"); // Different order
+        RoutingRule rule2 = createRoutingRule("[\"OpenAI\",\"Anthropic\",\"Google\"]");
         List<Provider> availableProviders = List.of(provider1, provider2, provider3);
         List<Model> activeModels = List.of(model1, model2, model3);
         List<RoutingRule> activeRules = List.of(rule1, rule2); // rule1 comes first
@@ -220,7 +220,7 @@ class CustomOrderRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = customOrderRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();

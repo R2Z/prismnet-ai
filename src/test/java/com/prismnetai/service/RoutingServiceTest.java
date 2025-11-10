@@ -76,7 +76,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders)).thenReturn(selectedModel);
+        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(selectedModel);
         when(aiRequestRepository.save(any(AiRequest.class))).thenAnswer(invocation -> {
             AiRequest req = invocation.getArgument(0);
             req.setId(100L);
@@ -99,7 +99,7 @@ class RoutingServiceTest {
 
         verify(providerRepository).findByIsActiveTrue();
         verify(routingStrategies).get("PRICE");
-        verify(mockPriceStrategy).selectModel(availableProviders);
+        verify(mockPriceStrategy).selectModel(availableProviders, userId);
         verify(aiRequestRepository).save(any(AiRequest.class));
     }
 
@@ -155,7 +155,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders)).thenReturn(Optional.empty());
+        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(Optional.empty());
 
         // When & Then
         assertThatThrownBy(() -> routingService.routeRequest(userId, strategy, prompt, maxTokens))
@@ -164,7 +164,7 @@ class RoutingServiceTest {
 
         verify(providerRepository).findByIsActiveTrue();
         verify(routingStrategies).get("PRICE");
-        verify(mockPriceStrategy).selectModel(availableProviders);
+        verify(mockPriceStrategy).selectModel(availableProviders, userId);
     }
 
     @Test
@@ -236,7 +236,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders)).thenReturn(selectedModel);
+        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(selectedModel);
         when(aiRequestRepository.save(any(AiRequest.class))).thenAnswer(invocation -> {
             AiRequest req = invocation.getArgument(0);
             req.setId(100L);
@@ -264,7 +264,7 @@ class RoutingServiceTest {
 
         when(providerRepository.findByIsActiveTrue()).thenReturn(availableProviders);
         when(routingStrategies.get("PRICE")).thenReturn(mockPriceStrategy);
-        when(mockPriceStrategy.selectModel(availableProviders)).thenReturn(selectedModel);
+        when(mockPriceStrategy.selectModel(availableProviders, userId)).thenReturn(selectedModel);
         when(aiRequestRepository.save(any(AiRequest.class))).thenAnswer(invocation -> {
             AiRequest req = invocation.getArgument(0);
             req.setId(100L);

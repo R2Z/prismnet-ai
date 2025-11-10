@@ -1,19 +1,20 @@
 package com.prismnetai.service.routing;
 
-import com.prismnetai.entity.Model;
-import com.prismnetai.entity.Provider;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.prismnetai.entity.Model;
+import com.prismnetai.entity.Provider;
 
 public interface RoutingStrategy {
 
     /**
      * Selects the best model from available providers based on the routing strategy
      * @param availableProviders List of providers that are currently available
+     * @param userId The user ID for which to select the model (can be null)
      * @return Optional containing the selected model, empty if no suitable model found
      */
-    Optional<Model> selectModel(List<Provider> availableProviders);
+    Optional<Model> selectModel(List<Provider> availableProviders, String userId);
 
     /**
      * Returns the name of this routing strategy

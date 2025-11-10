@@ -69,7 +69,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();
@@ -88,7 +88,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();
@@ -101,7 +101,7 @@ class LatencyRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -116,7 +116,7 @@ class LatencyRoutingStrategyTest {
         when(modelRepository.findActiveModelsByProviderIds(anyList())).thenReturn(activeModels);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -133,7 +133,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -154,7 +154,7 @@ class LatencyRoutingStrategyTest {
         List<Provider> availableProviders = null;
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -166,7 +166,7 @@ class LatencyRoutingStrategyTest {
         List<Provider> availableProviders = List.of();
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isEmpty();
@@ -189,7 +189,7 @@ class LatencyRoutingStrategyTest {
         when(providerMetricRepository.findRecentMetricsByProvidersAndType(anyList(), any(), any())).thenReturn(latencyMetrics);
 
         // When
-        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders);
+        Optional<Model> result = latencyRoutingStrategy.selectModel(availableProviders, "test-user");
 
         // Then
         assertThat(result).isPresent();

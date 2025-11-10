@@ -36,7 +36,7 @@ public class AutoRoutingStrategy implements RoutingStrategy {
     private static final double SUCCESS_RATE_WEIGHT = 0.2;
 
     @Override
-    public Optional<Model> selectModel(List<Provider> availableProviders) {
+    public Optional<Model> selectModel(List<Provider> availableProviders, String userId) {
         log.info("AutoRoutingStrategy.selectModel() - Starting auto intelligent model selection");
 
         if (availableProviders == null) {

@@ -1,20 +1,21 @@
 package com.prismnetai.service;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.prismnetai.entity.AiRequest;
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.repository.AiRequestRepository;
 import com.prismnetai.repository.ProviderRepository;
 import com.prismnetai.service.routing.RoutingStrategy;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -51,7 +52,7 @@ public class RoutingService {
         log.debug("RoutingService.routeRequest() - Using routing strategy: {}", strategy.getStrategyName());
 
         // Select model using strategy
-        Optional<Model> selectedModel = strategy.selectModel(availableProviders);
+        Optional<Model> selectedModel = strategy.selectModel(availableProviders, userId);
         if (selectedModel.isEmpty()) {
             log.error("RoutingService.routeRequest() - No suitable model found for strategy: {} among {} providers",
                       routingStrategy, availableProviders.size());

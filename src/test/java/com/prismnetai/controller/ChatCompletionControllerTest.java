@@ -1,37 +1,40 @@
 package com.prismnetai.controller;
 
-import com.prismnetai.dto.ChatCompletionRequest;
-import com.prismnetai.dto.ChatCompletionResponse;
-import com.prismnetai.entity.AiRequest;
-import com.prismnetai.entity.Model;
-import com.prismnetai.entity.Provider;
-import com.prismnetai.service.RoutingService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.prismnetai.dto.ChatCompletionRequest;
+import com.prismnetai.dto.ChatCompletionResponse;
+import com.prismnetai.entity.AiRequest;
+import com.prismnetai.entity.Model;
+import com.prismnetai.entity.Provider;
+import com.prismnetai.service.RoutingService;
 
 @ExtendWith(MockitoExtension.class)
 class ChatCompletionControllerTest {
 
     @Mock
     private RoutingService routingService;
+
+    @Mock
+    private WebClient webClient;
 
     @InjectMocks
     private ChatCompletionController controller;
