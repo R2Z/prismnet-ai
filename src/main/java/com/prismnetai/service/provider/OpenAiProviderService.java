@@ -5,9 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +15,7 @@ import com.prismnetai.dto.ChatCompletionRequest;
 import com.prismnetai.dto.ChatCompletionResponse;
 import com.prismnetai.entity.AiRequest;
 import com.prismnetai.exception.ProviderException;
+import com.prismnetai.service.provider.client.OpenAiApiClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenAiProviderService implements AiProviderService {
 
     private static final String PROVIDER_NAME = "OpenAI";
-    private static final String COMPLETIONS_ENDPOINT = "/chat/completions";
-    private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
 
-    private final WebClient webClient;
+    private final OpenAiApiClient openAiApiClient;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -66,7 +63,7 @@ public class OpenAiProviderService implements AiProviderService {
         try {
             Map<String, Object> openAiRequest = buildOpenAiRequest(request, aiRequest);
             log.info("OpenAI request JSON: {}", objectMapper.writeValueAsString(openAiRequest));
-            String responseBody = makeApiCall(openAiRequest, aiRequest);
+            String responseBody = openAiApiClient.chatCompletions(openAiRequest, aiRequest.getSelectedProvider().getBaseUrl(), aiRequest.getSelectedProvider().getApiKey());
             log.info("OpenAI response JSON: {}", responseBody);
             ChatCompletionResponse response = parseOpenAiResponse(responseBody, aiRequest, request);
 
@@ -110,37 +107,6 @@ public class OpenAiProviderService implements AiProviderService {
         );
     }
 
-    /**
-     * Makes the actual HTTP call to the OpenAI API.
-     * This method handles the HTTP communication and includes proper timeout handling.
-     *
-     * @param requestPayload the request payload
-     * @param aiRequest the AI request entity
-     * @return the response body as a string
-     * @throws WebClientException if the HTTP call fails
-     */
-    private String makeApiCall(Map<String, Object> requestPayload, AiRequest aiRequest) {
-        try {
-            String baseUrl = aiRequest.getSelectedProvider().getBaseUrl();
-            String apiKey = aiRequest.getSelectedProvider().getApiKey();
-            String fullUrl = baseUrl + COMPLETIONS_ENDPOINT;
-
-            log.info("OpenAiProviderService.makeApiCall() - Headers: Content-Type={}, Authorization=Bearer [REDACTED]", MediaType.APPLICATION_JSON_VALUE);
-
-            return webClient.post()
-                .uri(fullUrl)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + apiKey)
-                .bodyValue(requestPayload)
-                .retrieve()
-                .bodyToMono(String.class)
-                .timeout(API_TIMEOUT)
-                .block();
-        } catch (Exception e) {
-            log.error("OpenAiProviderService.makeApiCall() - Failed to make API call to OpenAI: {}", e.getMessage());
-            throw e; // Re-throw to be handled by caller
-        }
-    }
 
     /**
      * Parses the OpenAI API response into a ChatCompletionResponse.

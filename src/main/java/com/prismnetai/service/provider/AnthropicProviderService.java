@@ -6,9 +6,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +16,7 @@ import com.prismnetai.dto.ChatCompletionRequest;
 import com.prismnetai.dto.ChatCompletionResponse;
 import com.prismnetai.entity.AiRequest;
 import com.prismnetai.exception.ProviderException;
+import com.prismnetai.service.provider.client.AnthropicApiClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,11 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AnthropicProviderService implements AiProviderService {
 
     private static final String PROVIDER_NAME = "Anthropic";
-    private static final String MESSAGES_ENDPOINT = "/v1/messages";
-    private static final String ANTHROPIC_VERSION = "2023-06-01";
-    private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
 
-    private final WebClient webClient;
+    private final AnthropicApiClient anthropicApiClient;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -68,7 +64,7 @@ public class AnthropicProviderService implements AiProviderService {
         try {
             Map<String, Object> anthropicRequest = buildAnthropicRequest(request, aiRequest);
             log.info("Anthropic request JSON: {}", objectMapper.writeValueAsString(anthropicRequest));
-            String responseBody = makeApiCall(anthropicRequest, aiRequest);
+            String responseBody = anthropicApiClient.messages(anthropicRequest, aiRequest.getSelectedProvider().getBaseUrl(), aiRequest.getSelectedProvider().getApiKey());
             log.info("Anthropic response JSON: {}", responseBody);
             ChatCompletionResponse response = parseAnthropicResponse(responseBody, aiRequest, request);
 
@@ -119,40 +115,6 @@ public class AnthropicProviderService implements AiProviderService {
         );
     }
 
-    /**
-     * Makes the actual HTTP call to the Anthropic API.
-     * This method handles the HTTP communication and includes proper timeout handling.
-     *
-     * @param requestPayload the request payload
-     * @param aiRequest the AI request entity
-     * @return the response body as a string
-     * @throws WebClientException if the HTTP call fails
-     */
-    private String makeApiCall(Map<String, Object> requestPayload, AiRequest aiRequest) {
-        try {
-            String baseUrl = aiRequest.getSelectedProvider().getBaseUrl();
-            String apiKey = aiRequest.getSelectedProvider().getApiKey();
-            String fullUrl = baseUrl + MESSAGES_ENDPOINT;
-
-            log.info("AnthropicProviderService.makeApiCall() - Headers: Content-Type={}, x-api-key=[REDACTED], anthropic-version={}",
-                MediaType.APPLICATION_JSON_VALUE,
-                ANTHROPIC_VERSION);
-
-            return webClient.post()
-                .uri(fullUrl)
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("x-api-key", apiKey)
-                .header("anthropic-version", ANTHROPIC_VERSION)
-                .bodyValue(requestPayload)
-                .retrieve()
-                .bodyToMono(String.class)
-                .timeout(API_TIMEOUT)
-                .block();
-        } catch (Exception e) {
-            log.error("AnthropicProviderService.makeApiCall() - Failed to make API call to Anthropic: {}", e.getMessage());
-            throw e; // Re-throw to be handled by caller
-        }
-    }
 
     /**
      * Parses the Anthropic API response into a ChatCompletionResponse.
