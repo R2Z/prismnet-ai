@@ -1,6 +1,8 @@
 -- V2__test_data.sql
 -- Test data for comprehensive testing scenarios
 
+USE prismnetai;
+
 -- Insert additional providers for testing
 INSERT INTO provider (name, base_url, api_key, is_active) VALUES
 ('Google', 'https://generativelanguage.googleapis.com', 'placeholder-key', TRUE),

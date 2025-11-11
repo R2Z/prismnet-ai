@@ -1,5 +1,6 @@
 -- V1__initial_schema.sql
 -- Initial database schema for PrismNet AI Provider Routing
+USE prismnetai;
 
 -- Create providers table
 CREATE TABLE provider (
