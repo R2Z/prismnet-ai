@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenAiProviderService implements AiProviderService {
 
     private static final String PROVIDER_NAME = "OpenAI";
-    private static final String COMPLETIONS_ENDPOINT = "/completions";
+    private static final String COMPLETIONS_ENDPOINT = "/chat/completions";
     private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
 
     private final WebClient webClient;
@@ -65,7 +65,9 @@ public class OpenAiProviderService implements AiProviderService {
 
         try {
             Map<String, Object> openAiRequest = buildOpenAiRequest(request, aiRequest);
+            log.info("OpenAI request JSON: {}", objectMapper.writeValueAsString(openAiRequest));
             String responseBody = makeApiCall(openAiRequest, aiRequest);
+            log.info("OpenAI response JSON: {}", responseBody);
             ChatCompletionResponse response = parseOpenAiResponse(responseBody, aiRequest, request);
 
             long latencyMs = Duration.between(startTime, Instant.now()).toMillis();
@@ -100,11 +102,9 @@ public class OpenAiProviderService implements AiProviderService {
     private Map<String, Object> buildOpenAiRequest(ChatCompletionRequest request, AiRequest aiRequest) {
         log.info("OpenAiProviderService.buildOpenAiRequest() - Building OpenAI request for model: {}", aiRequest.getSelectedModel().getModelId());
 
-        String prompt = extractPrompt(request);
-
         return Map.of(
             "model", aiRequest.getSelectedModel().getModelId(),
-            "prompt", prompt,
+            "messages", request.getMessages(),
             "max_tokens", request.getMaxTokens() != null ? request.getMaxTokens() : 100,
             "temperature", request.getTemperature() != null ? request.getTemperature() : BigDecimal.valueOf(1.0)
         );
@@ -121,10 +121,16 @@ public class OpenAiProviderService implements AiProviderService {
      */
     private String makeApiCall(Map<String, Object> requestPayload, AiRequest aiRequest) {
         try {
+            String baseUrl = aiRequest.getSelectedProvider().getBaseUrl();
+            String apiKey = aiRequest.getSelectedProvider().getApiKey();
+            String fullUrl = baseUrl + COMPLETIONS_ENDPOINT;
+
+            log.info("OpenAiProviderService.makeApiCall() - Headers: Content-Type={}, Authorization=Bearer [REDACTED]", MediaType.APPLICATION_JSON_VALUE);
+
             return webClient.post()
-                .uri(aiRequest.getSelectedProvider().getBaseUrl() + COMPLETIONS_ENDPOINT)
+                .uri(fullUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + aiRequest.getSelectedProvider().getApiKey())
+                .header("Authorization", "Bearer " + apiKey)
                 .bodyValue(requestPayload)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -150,7 +156,7 @@ public class OpenAiProviderService implements AiProviderService {
 
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-        String content = jsonNode.path("choices").get(0).path("text").asText();
+        String content = jsonNode.path("choices").get(0).path("message").path("content").asText();
         int promptTokens = jsonNode.path("usage").path("prompt_tokens").asInt();
         int completionTokens = jsonNode.path("usage").path("completion_tokens").asInt();
 

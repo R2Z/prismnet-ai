@@ -10,16 +10,18 @@ INSERT INTO provider (name, base_url, api_key, is_active) VALUES
 ('HuggingFace', 'https://api-inference.huggingface.co', 'placeholder-key', FALSE);
 
 -- Insert additional models for testing
-INSERT INTO model (provider_id, model_id, name, context_window, input_pricing, output_pricing, is_active) VALUES
--- Google models
-(3, 'gemini-pro', 'Gemini Pro', 32768, 0.000001, 0.000004, TRUE),
-(3, 'gemini-pro-vision', 'Gemini Pro Vision', 16384, 0.000004, 0.000012, TRUE),
--- Cohere models
-(4, 'command', 'Command', 4096, 0.000015, 0.000075, TRUE),
-(4, 'command-light', 'Command Light', 4096, 0.000008, 0.000038, TRUE),
--- HuggingFace models (inactive)
-(5, 'gpt2', 'GPT-2', 1024, 0.000000, 0.000000, FALSE),
-(5, 'distilbert', 'DistilBERT', 512, 0.000000, 0.000000, FALSE);
+INSERT INTO model (provider_id,model_id,name,context_window,input_pricing,output_pricing,is_active,created_at,updated_at) VALUES
+	 (1,'gpt-4','GPT-4',8192,0.000030,0.000060,1,'2025-11-09 16:59:35','2025-11-09 16:59:35'),
+	 (1,'gpt-3.5-turbo','GPT-3.5 Turbo',4096,0.000002,0.000002,1,'2025-11-09 16:59:35','2025-11-09 16:59:35'),
+	 (2,'claude-opus-4-20250514','CLAUDE-OPUS-4-20250514',200000,0.000015,0.000075,1,'2025-11-09 16:59:35','2025-11-09 16:59:35'),
+	 (2,'claude-sonnet-4-5-20250929','CLAUDE-SONNET-4-5-20250929',200000,0.000003,0.000015,1,'2025-11-09 16:59:35','2025-11-09 16:59:35'),
+	 (3,'gemini-pro','Gemini Pro',32768,0.000001,0.000004,1,'2025-11-09 18:16:49','2025-11-09 18:16:49'),
+	 (3,'gemini-pro-vision','Gemini Pro Vision',16384,0.000004,0.000012,1,'2025-11-09 18:16:49','2025-11-09 18:16:49'),
+	 (4,'command','Command',4096,0.000015,0.000075,1,'2025-11-09 18:16:49','2025-11-09 18:16:49'),
+	 (4,'command-light','Command Light',4096,0.000008,0.000038,1,'2025-11-09 18:16:49','2025-11-09 18:16:49'),
+	 (5,'gpt2','GPT-2',1024,0.000000,0.000000,0,'2025-11-09 18:16:49','2025-11-09 18:16:49'),
+	 (5,'distilbert','DistilBERT',512,0.000000,0.000000,0,'2025-11-09 18:16:49','2025-11-09 18:16:49');
+
 
 -- Insert test users' routing rules
 INSERT INTO routing_rule (user_id, name, description, provider_order, is_active) VALUES

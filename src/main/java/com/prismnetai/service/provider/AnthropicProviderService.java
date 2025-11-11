@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AnthropicProviderService implements AiProviderService {
 
     private static final String PROVIDER_NAME = "Anthropic";
-    private static final String MESSAGES_ENDPOINT = "/messages";
+    private static final String MESSAGES_ENDPOINT = "/v1/messages";
     private static final String ANTHROPIC_VERSION = "2023-06-01";
     private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
 
@@ -67,7 +67,9 @@ public class AnthropicProviderService implements AiProviderService {
 
         try {
             Map<String, Object> anthropicRequest = buildAnthropicRequest(request, aiRequest);
+            log.info("Anthropic request JSON: {}", objectMapper.writeValueAsString(anthropicRequest));
             String responseBody = makeApiCall(anthropicRequest, aiRequest);
+            log.info("Anthropic response JSON: {}", responseBody);
             ChatCompletionResponse response = parseAnthropicResponse(responseBody, aiRequest, request);
 
             long latencyMs = Duration.between(startTime, Instant.now()).toMillis();
@@ -128,10 +130,18 @@ public class AnthropicProviderService implements AiProviderService {
      */
     private String makeApiCall(Map<String, Object> requestPayload, AiRequest aiRequest) {
         try {
+            String baseUrl = aiRequest.getSelectedProvider().getBaseUrl();
+            String apiKey = aiRequest.getSelectedProvider().getApiKey();
+            String fullUrl = baseUrl + MESSAGES_ENDPOINT;
+
+            log.info("AnthropicProviderService.makeApiCall() - Headers: Content-Type={}, x-api-key=[REDACTED], anthropic-version={}",
+                MediaType.APPLICATION_JSON_VALUE,
+                ANTHROPIC_VERSION);
+
             return webClient.post()
-                .uri(aiRequest.getSelectedProvider().getBaseUrl() + MESSAGES_ENDPOINT)
+                .uri(fullUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header("x-api-key", aiRequest.getSelectedProvider().getApiKey())
+                .header("x-api-key", apiKey)
                 .header("anthropic-version", ANTHROPIC_VERSION)
                 .bodyValue(requestPayload)
                 .retrieve()

@@ -40,9 +40,9 @@ public class ChatCompletionController {
         log.info("ChatCompletionController.createCompletion() - Received chat completion request with routing strategy: {}, messageCount: {}",
                   request.getRoutingStrategy(), request.getMessages() != null ? request.getMessages().size() : 0);
 
-        // Extract user ID from authentication
-        String userId = authentication.getName();
-        log.info("ChatCompletionController.createCompletion() - Processing request for authenticated user: {}", userId);
+        // Extract user ID from authentication (use anonymous for demo if not authenticated)
+        String userId = (authentication != null && authentication.getName() != null) ? authentication.getName() : "anonymous-demo-user";
+        log.info("ChatCompletionController.createCompletion() - Processing request for user: {}", userId);
 
         // Validate request
         validator.validate(request);
@@ -69,8 +69,8 @@ public class ChatCompletionController {
         var providerService = providerServiceRegistry.getProviderService(aiRequest.getSelectedProvider().getName());
         ChatCompletionResponse response = providerService.callCompletion(request, aiRequest);
 
-        log.info("ChatCompletionController.createCompletion() - Successfully processed request for user: {}, returning response with id: {}",
-                  userId, response.getId());
+        log.info("ChatCompletionController.createCompletion() - Successfully processed request for user: {}, returning response",
+                  userId);
 
         return ResponseEntity.ok(response);
     }
