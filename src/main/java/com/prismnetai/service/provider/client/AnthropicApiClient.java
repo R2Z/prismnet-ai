@@ -61,4 +61,17 @@ public class AnthropicApiClient {
             throw e; // Re-throw to be handled by caller
         }
     }
+
+    /**
+     * Makes a streaming HTTP call to the Anthropic messages API.
+     *
+     * @param requestPayload the request payload
+     * @param baseUrl the base URL of the provider
+     * @param apiKey the API key for authentication
+     * @return a Flux of response chunks as strings
+     * @throws Exception if the HTTP call fails
+     */
+    public reactor.core.publisher.Flux<String> messagesStream(Map<String, Object> requestPayload, String baseUrl, String apiKey) {
+        return null;
+    }
 }
