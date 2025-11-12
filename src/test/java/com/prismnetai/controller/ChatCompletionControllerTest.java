@@ -7,7 +7,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,11 +29,11 @@ import com.prismnetai.entity.AiRequest;
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.service.RoutingService;
+import com.prismnetai.service.RoutingStrategyInferenceService;
 import com.prismnetai.service.provider.AiProviderService;
 import com.prismnetai.service.provider.ProviderServiceRegistry;
 import com.prismnetai.validation.ChatCompletionRequestValidator;
 
-@Disabled
 @ExtendWith(MockitoExtension.class)
 class ChatCompletionControllerTest {
 
@@ -49,6 +48,9 @@ class ChatCompletionControllerTest {
 
     @Mock
     private ProviderServiceRegistry providerServiceRegistry;
+
+    @Mock
+    private RoutingStrategyInferenceService routingStrategyInferenceService;
 
     @InjectMocks
     private ChatCompletionController controller;
@@ -109,14 +111,21 @@ class ChatCompletionControllerTest {
                 .build())
             .build();
         lenient().when(mockProviderService.callCompletion(any(ChatCompletionRequest.class), eq(aiRequest))).thenReturn(mockResponse);
+
+        // Mock routing strategy inference service
+        lenient().when(routingStrategyInferenceService.inferRoutingStrategy(any(ChatCompletionRequest.class)))
+                .thenReturn(new RoutingStrategyInferenceService.RoutingInferenceResult(
+                        AiRequest.RoutingStrategy.PRICE, null, null));
+
+        // Mock routing service to return aiRequest for any arguments
+        lenient().when(routingService.routeRequest(any(), any(), any(), any()))
+                .thenReturn(aiRequest);
     }
 
     @Test
     void shouldReturnSuccessfulResponse_whenValidRequestWithPriceRouting() {
         // Given
         ChatCompletionRequest request = createValidRequest("PRICE");
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello, how are you?"), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         @SuppressWarnings("unchecked")
@@ -159,9 +168,6 @@ class ChatCompletionControllerTest {
         request.setModel("openai/gpt-4");
         request.setMessages(List.of(systemMessage, userMessage, assistantMessage));
         request.setMaxTokens(50);
-
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Tell me a joke"), eq(50), eq(null))).thenReturn(aiRequest);
 
         // When
         @SuppressWarnings("unchecked")
@@ -272,9 +278,6 @@ class ChatCompletionControllerTest {
         request.setMessages(List.of(systemMessage, assistantMessage));
         request.setMaxTokens(100);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("No user message found"), eq(100), eq(null))).thenReturn(aiRequest);
-
         // When
         @SuppressWarnings("unchecked")
         ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
@@ -290,9 +293,6 @@ class ChatCompletionControllerTest {
         request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(null);
-
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(null), eq(null))).thenReturn(aiRequest);
 
         // When
         @SuppressWarnings("unchecked")
@@ -310,9 +310,6 @@ class ChatCompletionControllerTest {
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(0);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(0), eq(null))).thenReturn(aiRequest);
-
         // When
         @SuppressWarnings("unchecked")
         ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
@@ -328,9 +325,6 @@ class ChatCompletionControllerTest {
         request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(-1);
-
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(-1), eq(null))).thenReturn(aiRequest);
 
         // When
         @SuppressWarnings("unchecked")
@@ -348,9 +342,6 @@ class ChatCompletionControllerTest {
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(10000);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(10000), eq(null))).thenReturn(aiRequest);
-
         // When
         @SuppressWarnings("unchecked")
         ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
@@ -366,9 +357,6 @@ class ChatCompletionControllerTest {
         request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("")));
         request.setMaxTokens(100);
-
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq(""), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         @SuppressWarnings("unchecked")
@@ -386,9 +374,6 @@ class ChatCompletionControllerTest {
         request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage(longMessage)));
         request.setMaxTokens(100);
-
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq(longMessage), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
         @SuppressWarnings("unchecked")
