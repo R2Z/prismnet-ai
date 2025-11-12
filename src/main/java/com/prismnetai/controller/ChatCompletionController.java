@@ -40,8 +40,8 @@ public class ChatCompletionController {
             @RequestBody ChatCompletionRequest request,
             Authentication authentication) {
 
-        log.info("ChatCompletionController.createChatCompletion() - Received chat completion request with routing strategy: {}, stream: {}, messageCount: {}",
-                  request.getRoutingStrategy(), request.getStream(), request.getMessages() != null ? request.getMessages().size() : 0);
+        log.info("ChatCompletionController.createChatCompletion() - Received chat completion request with stream: {}, messageCount: {}",
+                  request.getStream(), request.getMessages() != null ? request.getMessages().size() : 0);
 
         // Extract user ID from authentication (use anonymous for demo if not authenticated)
         String userId = (authentication != null && authentication.getName() != null) ? authentication.getName() : "anonymous-demo-user";

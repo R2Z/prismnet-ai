@@ -171,35 +171,4 @@ public class RoutingStrategyInferenceServiceTest {
         assertNull(result.getProviderOptions());
     }
 
-    @Test
-    void testLegacyRoutingStrategy() {
-        // Given
-        ChatCompletionRequest request = ChatCompletionRequest.builder()
-                .routingStrategy("PRICE")
-                .messages(List.of(new ChatCompletionRequest.ChatMessage("user", "Hello")))
-                .build();
-
-        // When
-        var result = inferenceService.inferRoutingStrategy(request);
-
-        // Then
-        assertEquals(AiRequest.RoutingStrategy.PRICE, result.getStrategy());
-    }
-
-    @Test
-    void testLegacyRoutingStrategyWithPreferredModel() {
-        // Given
-        ChatCompletionRequest request = ChatCompletionRequest.builder()
-                .routingStrategy("PREFERRED_MODEL")
-                .preferredModel("openai/gpt-4")
-                .messages(List.of(new ChatCompletionRequest.ChatMessage("user", "Hello")))
-                .build();
-
-        // When
-        var result = inferenceService.inferRoutingStrategy(request);
-
-        // Then
-        assertEquals(AiRequest.RoutingStrategy.PREFERRED_MODEL, result.getStrategy());
-        assertEquals("openai/gpt-4", result.getPreferredModel());
-    }
 }

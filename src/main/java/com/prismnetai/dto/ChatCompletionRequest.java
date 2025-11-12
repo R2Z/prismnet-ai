@@ -19,11 +19,6 @@ public class ChatCompletionRequest {
     private List<String> models;    // Optional multiple models (fallback routing)
     private ProviderOptions provider; // Optional provider configuration
 
-    // Legacy support - now optional
-    private String routingStrategy;
-    private String routingRuleId;
-    private String preferredModel;
-
     // Existing fields
     private List<ChatMessage> messages;
     private Integer maxTokens = 100;

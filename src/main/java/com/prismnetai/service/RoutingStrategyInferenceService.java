@@ -27,15 +27,6 @@ public class RoutingStrategyInferenceService {
     public RoutingInferenceResult inferRoutingStrategy(ChatCompletionRequest request) {
         log.info("RoutingStrategyInferenceService.inferRoutingStrategy() - Inferring routing strategy from request");
 
-        // Check for explicit routing strategy first (legacy support)
-        if (StringUtils.hasText(request.getRoutingStrategy())) {
-            AiRequest.RoutingStrategy strategy = AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase());
-            String preferredModel = extractPreferredModel(request, strategy);
-            log.info("RoutingStrategyInferenceService.inferRoutingStrategy() - Using explicit strategy: {}, preferredModel: {}",
-                    strategy, preferredModel);
-            return new RoutingInferenceResult(strategy, preferredModel, request.getProvider());
-        }
-
         // Infer from new flexible fields
         return inferFromFlexibleFields(request);
     }
@@ -45,14 +36,14 @@ public class RoutingStrategyInferenceService {
      */
     private String extractPreferredModel(ChatCompletionRequest request, AiRequest.RoutingStrategy strategy) {
         // For preferred model strategy, use the specified model
-        if (strategy == AiRequest.RoutingStrategy.PREFERRED_MODEL && StringUtils.hasText(request.getPreferredModel())) {
-            return request.getPreferredModel();
+        if (strategy == AiRequest.RoutingStrategy.PREFERRED_MODEL && StringUtils.hasText(request.getModel())) {
+            return request.getModel();
         }
         // For other strategies, use the model field if specified
         if (StringUtils.hasText(request.getModel())) {
             return request.getModel();
         }
-        return request.getPreferredModel(); // fallback to legacy field
+        return null; // no fallback
     }
 
     /**

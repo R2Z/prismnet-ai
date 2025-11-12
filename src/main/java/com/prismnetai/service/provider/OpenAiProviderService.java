@@ -132,7 +132,7 @@ public class OpenAiProviderService implements AiProviderService {
             .created((int) (System.currentTimeMillis() / 1000))
             .model(aiRequest.getSelectedModel().getModelId())
             .routingInfo(ChatCompletionResponse.RoutingInfo.builder()
-                .strategy(originalRequest.getRoutingStrategy())
+                .strategy(aiRequest.getRoutingStrategy().name())
                 .provider(PROVIDER_NAME)
                 .costSavings(BigDecimal.ZERO) // Would be calculated based on routing
                 .latencyMs(0L) // Would be measured

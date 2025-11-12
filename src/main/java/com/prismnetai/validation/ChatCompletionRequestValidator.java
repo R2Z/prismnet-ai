@@ -86,18 +86,17 @@ public class ChatCompletionRequestValidator {
 
     /**
      * Validates the routing configuration fields.
-     * Supports both legacy routingStrategy and new flexible routing fields.
+     * Supports new flexible routing fields.
      */
     private void validateRoutingConfiguration(ChatCompletionRequest request, Map<String, String> errors) {
         // Check if any routing configuration is provided
         boolean hasModel = StringUtils.hasText(request.getModel());
         boolean hasModels = request.getModels() != null && !request.getModels().isEmpty();
         boolean hasProvider = request.getProvider() != null;
-        boolean hasRoutingStrategy = StringUtils.hasText(request.getRoutingStrategy());
 
         // At least one routing configuration must be present
-        if (!hasModel && !hasModels && !hasProvider && !hasRoutingStrategy) {
-            errors.put("routing", "At least one routing configuration must be provided: model, models, provider, or routingStrategy");
+        if (!hasModel && !hasModels && !hasProvider) {
+            errors.put("routing", "At least one routing configuration must be provided: model, models, or provider");
             return;
         }
 
@@ -125,15 +124,6 @@ public class ChatCompletionRequestValidator {
         // Validate provider options
         if (hasProvider) {
             validateProviderOptions(request.getProvider(), errors);
-        }
-
-        // Validate legacy routing strategy (if provided)
-        if (hasRoutingStrategy) {
-            try {
-                com.prismnetai.entity.AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                errors.put("routingStrategy", "routingStrategy must be one of: PRICE, LATENCY, THROUGHPUT, AUTO, CUSTOM_ORDER, PREFERRED_MODEL");
-            }
         }
     }
 

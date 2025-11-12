@@ -156,7 +156,7 @@ class ChatCompletionControllerTest {
         assistantMessage.setContent("Why did the chicken cross the road?");
 
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(systemMessage, userMessage, assistantMessage));
         request.setMaxTokens(50);
 
@@ -175,7 +175,7 @@ class ChatCompletionControllerTest {
     void shouldHandleNullMessagesGracefully() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(null);
         request.setMaxTokens(100);
 
@@ -192,7 +192,7 @@ class ChatCompletionControllerTest {
     void shouldHandleEmptyMessagesList() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of());
         request.setMaxTokens(100);
 
@@ -209,7 +209,7 @@ class ChatCompletionControllerTest {
     void shouldHandleNullRoutingStrategy() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy(null);
+        // No routing strategy set
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
@@ -226,7 +226,7 @@ class ChatCompletionControllerTest {
     void shouldHandleEmptyRoutingStrategy() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("");
+        // Empty routing strategy removed
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
@@ -243,7 +243,7 @@ class ChatCompletionControllerTest {
     void shouldHandleWhitespaceOnlyRoutingStrategy() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("   ");
+        // Whitespace routing strategy removed
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
@@ -268,7 +268,7 @@ class ChatCompletionControllerTest {
         assistantMessage.setContent("I can help you");
 
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(systemMessage, assistantMessage));
         request.setMaxTokens(100);
 
@@ -287,7 +287,7 @@ class ChatCompletionControllerTest {
     void shouldHandleNullMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(null);
 
@@ -306,7 +306,7 @@ class ChatCompletionControllerTest {
     void shouldHandleZeroMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(0);
 
@@ -325,7 +325,7 @@ class ChatCompletionControllerTest {
     void shouldHandleNegativeMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(-1);
 
@@ -344,7 +344,7 @@ class ChatCompletionControllerTest {
     void shouldHandleLargeMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(10000);
 
@@ -363,7 +363,7 @@ class ChatCompletionControllerTest {
     void shouldHandleEmptyMessageContent() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("")));
         request.setMaxTokens(100);
 
@@ -383,7 +383,7 @@ class ChatCompletionControllerTest {
         // Given
         String longMessage = "A".repeat(10000);
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage(longMessage)));
         request.setMaxTokens(100);
 
@@ -400,7 +400,8 @@ class ChatCompletionControllerTest {
 
     private ChatCompletionRequest createValidRequest(String routingStrategy) {
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy(routingStrategy);
+        // Legacy field removed, use model instead
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello, how are you?")));
         request.setMaxTokens(100);
         return request;

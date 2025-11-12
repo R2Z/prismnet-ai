@@ -88,7 +88,7 @@ public class DefaultProviderService implements AiProviderService {
             .created((int) (System.currentTimeMillis() / 1000))
             .model(aiRequest.getSelectedModel().getModelId())
             .routingInfo(ChatCompletionResponse.RoutingInfo.builder()
-                .strategy(request.getRoutingStrategy())
+                .strategy(aiRequest.getRoutingStrategy().name())
                 .provider(aiRequest.getSelectedProvider().getName())
                 .costSavings(BigDecimal.ZERO)
                 .latencyMs(0L)

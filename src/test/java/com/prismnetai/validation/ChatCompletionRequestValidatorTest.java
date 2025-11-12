@@ -61,17 +61,6 @@ public class ChatCompletionRequestValidatorTest {
         assertDoesNotThrow(() -> validator.validate(request));
     }
 
-    @Test
-    void testValidLegacyRoutingStrategyRequest() {
-        // Given
-        ChatCompletionRequest request = ChatCompletionRequest.builder()
-                .routingStrategy("PRICE")
-                .messages(List.of(new ChatCompletionRequest.ChatMessage("user", "Hello")))
-                .build();
-
-        // When & Then
-        assertDoesNotThrow(() -> validator.validate(request));
-    }
 
     @Test
     void testInvalidNoRoutingConfiguration() {
@@ -167,19 +156,6 @@ public class ChatCompletionRequestValidatorTest {
         assertTrue(exception.getValidationErrors().containsKey("provider.order"));
     }
 
-    @Test
-    void testInvalidLegacyRoutingStrategy() {
-        // Given
-        ChatCompletionRequest request = ChatCompletionRequest.builder()
-                .routingStrategy("INVALID_STRATEGY")
-                .messages(List.of(new ChatCompletionRequest.ChatMessage("user", "Hello")))
-                .build();
-
-        // When & Then
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> validator.validate(request));
-        assertTrue(exception.getValidationErrors().containsKey("routingStrategy"));
-    }
 
     @Test
     void testInvalidNoMessages() {
