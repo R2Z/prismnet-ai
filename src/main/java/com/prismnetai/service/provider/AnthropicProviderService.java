@@ -116,6 +116,53 @@ public class AnthropicProviderService implements AiProviderService {
     }
 
 
+    @Override
+    public reactor.core.publisher.Flux<String> callStreamingCompletion(ChatCompletionRequest request, AiRequest aiRequest) {
+        if (request == null) {
+            throw new IllegalArgumentException("ChatCompletionRequest cannot be null");
+        }
+        if (aiRequest == null) {
+            throw new IllegalArgumentException("AiRequest cannot be null");
+        }
+
+        log.info("AnthropicProviderService.callStreamingCompletion() - Calling Anthropic streaming API for requestId: {}", aiRequest.getId());
+
+        try {
+            Map<String, Object> anthropicRequest = buildAnthropicStreamingRequest(request, aiRequest);
+            log.info("Anthropic streaming request JSON: {}", objectMapper.writeValueAsString(anthropicRequest));
+            return anthropicApiClient.messagesStream(anthropicRequest, aiRequest.getSelectedProvider().getBaseUrl(), aiRequest.getSelectedProvider().getApiKey());
+        } catch (Exception e) {
+            log.error("AnthropicProviderService.callStreamingCompletion() - Error calling Anthropic streaming API: {}", e.getMessage(), e);
+            throw new ProviderException("Failed to communicate with Anthropic streaming API", e);
+        }
+    }
+
+    /**
+     * Builds the Anthropic API request payload for streaming from the chat completion request.
+     *
+     * @param request the chat completion request
+     * @param aiRequest the AI request entity
+     * @return the Anthropic streaming request payload as a map
+     */
+    private Map<String, Object> buildAnthropicStreamingRequest(ChatCompletionRequest request, AiRequest aiRequest) {
+        log.info("AnthropicProviderService.buildAnthropicStreamingRequest() - Building Anthropic streaming request for model: {}", aiRequest.getSelectedModel().getModelId());
+
+        List<Map<String, String>> messages = request.getMessages().stream()
+            .map(msg -> Map.of(
+                "role", msg.getRole(),
+                "content", msg.getContent()
+            ))
+            .toList();
+
+        return Map.of(
+            "model", aiRequest.getSelectedModel().getModelId(),
+            "max_tokens", request.getMaxTokens() != null ? request.getMaxTokens() : 1024,
+            "messages", messages,
+            "temperature", request.getTemperature() != null ? request.getTemperature() : BigDecimal.valueOf(1.0),
+            "stream", true
+        );
+    }
+
     /**
      * Parses the Anthropic API response into a ChatCompletionResponse.
      *

@@ -36,6 +36,17 @@ public interface AiProviderService {
     ChatCompletionResponse callCompletion(ChatCompletionRequest request, AiRequest aiRequest);
 
     /**
+     * Calls the AI provider's API to process a streaming chat completion request.
+     *
+     * @param request the chat completion request containing messages and parameters
+     * @param aiRequest the AI request entity containing routing information
+     * @return a Flux of streaming response chunks from the provider
+     * @throws ProviderException if the provider API call fails
+     * @throws IllegalArgumentException if request or aiRequest is null
+     */
+    reactor.core.publisher.Flux<String> callStreamingCompletion(ChatCompletionRequest request, AiRequest aiRequest);
+
+    /**
      * Returns the name of the provider this service handles.
      *
      * @return the provider name

@@ -156,6 +156,46 @@ public class OpenAiProviderService implements AiProviderService {
             .build();
     }
 
+    @Override
+    public reactor.core.publisher.Flux<String> callStreamingCompletion(ChatCompletionRequest request, AiRequest aiRequest) {
+        if (request == null) {
+            throw new IllegalArgumentException("ChatCompletionRequest cannot be null");
+        }
+        if (aiRequest == null) {
+            throw new IllegalArgumentException("AiRequest cannot be null");
+        }
+
+        log.info("OpenAiProviderService.callStreamingCompletion() - Calling OpenAI streaming API for requestId: {}", aiRequest.getId());
+
+        try {
+            Map<String, Object> openAiRequest = buildOpenAiStreamingRequest(request, aiRequest);
+            log.info("OpenAI streaming request JSON: {}", objectMapper.writeValueAsString(openAiRequest));
+            return openAiApiClient.chatCompletionsStream(openAiRequest, aiRequest.getSelectedProvider().getBaseUrl(), aiRequest.getSelectedProvider().getApiKey());
+        } catch (Exception e) {
+            log.error("OpenAiProviderService.callStreamingCompletion() - Error calling OpenAI streaming API: {}", e.getMessage(), e);
+            throw new ProviderException("Failed to communicate with OpenAI streaming API", e);
+        }
+    }
+
+    /**
+     * Builds the OpenAI API request payload for streaming from the chat completion request.
+     *
+     * @param request the chat completion request
+     * @param aiRequest the AI request entity
+     * @return the OpenAI streaming request payload as a map
+     */
+    private Map<String, Object> buildOpenAiStreamingRequest(ChatCompletionRequest request, AiRequest aiRequest) {
+        log.info("OpenAiProviderService.buildOpenAiStreamingRequest() - Building OpenAI streaming request for model: {}", aiRequest.getSelectedModel().getModelId());
+
+        return Map.of(
+            "model", aiRequest.getSelectedModel().getModelId(),
+            "messages", request.getMessages(),
+            "max_tokens", request.getMaxTokens() != null ? request.getMaxTokens() : 100,
+            "temperature", request.getTemperature() != null ? request.getTemperature() : BigDecimal.valueOf(1.0),
+            "stream", true
+        );
+    }
+
     /**
      * Extracts the user prompt from the chat completion request.
      *

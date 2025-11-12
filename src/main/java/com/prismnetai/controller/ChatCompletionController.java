@@ -1,5 +1,6 @@
 package com.prismnetai.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,28 +31,28 @@ public class ChatCompletionController {
     private final ProviderServiceRegistry providerServiceRegistry;
     private final ChatCompletionRequestValidator validator;
 
-    @PostMapping
-    @Operation(summary = "Create chat completion with routing",
-                description = "Submit a chat completion request that will be routed based on the specified strategy")
-    public ResponseEntity<ChatCompletionResponse> createCompletion(
+    @PostMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE})
+    @Operation(summary = "Create chat completion (streaming or non-streaming) with routing",
+                description = "Submit a chat completion request that will be routed based on the specified strategy. Set 'stream' to true for streaming response.")
+    public Object createChatCompletion(
             @RequestBody ChatCompletionRequest request,
             Authentication authentication) {
 
-        log.info("ChatCompletionController.createCompletion() - Received chat completion request with routing strategy: {}, messageCount: {}",
-                  request.getRoutingStrategy(), request.getMessages() != null ? request.getMessages().size() : 0);
+        log.info("ChatCompletionController.createChatCompletion() - Received chat completion request with routing strategy: {}, stream: {}, messageCount: {}",
+                  request.getRoutingStrategy(), request.getStream(), request.getMessages() != null ? request.getMessages().size() : 0);
 
         // Extract user ID from authentication (use anonymous for demo if not authenticated)
         String userId = (authentication != null && authentication.getName() != null) ? authentication.getName() : "anonymous-demo-user";
-        log.info("ChatCompletionController.createCompletion() - Processing request for user: {}", userId);
+        log.info("ChatCompletionController.createChatCompletion() - Processing request for user: {}", userId);
 
         // Validate request
         validator.validate(request);
 
         String prompt = extractPrompt(request);
-        log.info("ChatCompletionController.createCompletion() - Extracted prompt length: {} characters", prompt.length());
+        log.info("ChatCompletionController.createChatCompletion() - Extracted prompt length: {} characters", prompt.length());
 
         // Route the request
-        log.info("ChatCompletionController.createCompletion() - Routing request for user: {} with strategy: {}",
+        log.info("ChatCompletionController.createChatCompletion() - Routing request for user: {} with strategy: {}",
                   userId, request.getRoutingStrategy());
 
         AiRequest aiRequest = routingService.routeRequest(
@@ -62,18 +63,23 @@ public class ChatCompletionController {
             request.getPreferredModel()
         );
 
-        log.info("ChatCompletionController.createCompletion() - Request routed successfully, requestId: {}, selectedModel: {}, selectedProvider: {}",
+        log.info("ChatCompletionController.createChatCompletion() - Request routed successfully, requestId: {}, selectedModel: {}, selectedProvider: {}",
                   aiRequest.getId(), aiRequest.getSelectedModel().getModelId(), aiRequest.getSelectedProvider().getName());
 
-        // Get the appropriate provider service and call the completion
+        // Get the appropriate provider service
         var providerService = providerServiceRegistry.getProviderService(aiRequest.getSelectedProvider().getName());
-        ChatCompletionResponse response = providerService.callCompletion(request, aiRequest);
 
-        log.info("ChatCompletionController.createCompletion() - Successfully processed request for user: {}, returning response",
-                  userId);
-
-        return ResponseEntity.ok(response);
+        // Check if streaming is requested
+        if (request.getStream() != null && request.getStream()) {
+            log.info("ChatCompletionController.createChatCompletion() - Processing streaming request for user: {}", userId);
+            return providerService.callStreamingCompletion(request, aiRequest);
+        } else {
+            log.info("ChatCompletionController.createChatCompletion() - Processing non-streaming request for user: {}", userId);
+            ChatCompletionResponse response = providerService.callCompletion(request, aiRequest);
+            return ResponseEntity.ok(response);
+        }
     }
+
 
     /**
      * Extracts the user prompt from the chat completion request.
