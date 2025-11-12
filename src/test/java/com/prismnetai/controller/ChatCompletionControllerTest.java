@@ -49,7 +49,7 @@ class ChatCompletionControllerTest {
     private ProviderServiceRegistry providerServiceRegistry;
 
     @InjectMocks
-    private ChatCompletionController controller;
+    private ChatCompletionControllerV2 controller;
 
     private Authentication authentication;
     private Provider provider;

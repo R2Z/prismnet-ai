@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OpenAiProviderService implements AiProviderService {
 
     private static final String PROVIDER_NAME = "OpenAI";
-    private static final String COMPLETIONS_ENDPOINT = "/completions";
+    private static final String COMPLETIONS_ENDPOINT = "/chat/completions";
     private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
 
     private final WebClient webClient;

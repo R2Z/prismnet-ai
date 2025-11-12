@@ -1,7 +1,7 @@
 package com.prismnetai.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,18 +16,15 @@ import com.prismnetai.validation.ChatCompletionRequestValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
-
 @Slf4j
 @RestController
-@RequestMapping("/v1/chat/completions")
+@RequestMapping("/v2/chat/completions")
 @RequiredArgsConstructor
 @Tag(name = "Chat Completions", description = "AI chat completion endpoints with intelligent routing")
-public class ChatCompletionController {
+public class ChatCompletionControllerV2 {
 
     private final RoutingService routingService;
     private final ProviderServiceRegistry providerServiceRegistry;
@@ -36,22 +33,15 @@ public class ChatCompletionController {
     @PostMapping
     @Operation(summary = "Create chat completion with routing",
                 description = "Submit a chat completion request that will be routed based on the specified strategy")
-    public ResponseEntity<?> createCompletion(
-            @RequestBody ChatCompletionRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<ChatCompletionResponse> createCompletion(
+            @RequestBody ChatCompletionRequest request,
+            Authentication authentication) {
 
         log.info("ChatCompletionController.createCompletion() - Received chat completion request with routing strategy: {}, messageCount: {}",
                   request.getRoutingStrategy(), request.getMessages() != null ? request.getMessages().size() : 0);
-        // -- 
-
-        Object caller = httpRequest.getAttribute("clientId");
-        if (caller == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
-        }
-
-        // --
 
         // Extract user ID from authentication
-        String userId = caller.toString();
+        String userId = authentication.getName();
         log.info("ChatCompletionController.createCompletion() - Processing request for authenticated user: {}", userId);
 
         // Validate request
