@@ -72,6 +72,25 @@ public class AnthropicApiClient {
      * @throws Exception if the HTTP call fails
      */
     public reactor.core.publisher.Flux<String> messagesStream(Map<String, Object> requestPayload, String baseUrl, String apiKey) {
-        return null;
+        try {
+            String fullUrl = baseUrl + MESSAGES_ENDPOINT;
+
+            log.info("AnthropicApiClient.messagesStream() - Headers: Content-Type={}, x-api-key=[REDACTED], anthropic-version={}",
+                MediaType.APPLICATION_JSON_VALUE,
+                ANTHROPIC_VERSION);
+
+            return webClient.post()
+                .uri(fullUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("x-api-key", apiKey)
+                .header("anthropic-version", ANTHROPIC_VERSION)
+                .bodyValue(requestPayload)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .timeout(API_TIMEOUT);
+        } catch (Exception e) {
+            log.error("AnthropicApiClient.messagesStream() - Failed to make streaming API call to Anthropic: {}", e.getMessage());
+            throw e; // Re-throw to be handled by caller
+        }
     }
 }
