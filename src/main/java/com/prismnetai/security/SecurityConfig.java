@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ApiKeyAuthFilter apiKeyAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
     @Bean
@@ -31,10 +31,10 @@ public class SecurityConfig {
             .cors(cors -> cors.configure(http))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/actuator/**", "/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/v1/chat/completions").permitAll()
+                .requestMatchers("/actuator/**", "/v1/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/admin/**", "/v1/chat/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(apiKeyAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
