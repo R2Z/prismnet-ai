@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OpenAiApiClient {
 
-    private static final String COMPLETIONS_ENDPOINT = "/chat/completions";
+    private static final String COMPLETIONS_ENDPOINT = "/v1/chat/completions";
     private static final Duration API_TIMEOUT = Duration.ofSeconds(30);
 
     private final WebClient webClient;

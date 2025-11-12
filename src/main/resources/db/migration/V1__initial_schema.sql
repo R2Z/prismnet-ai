@@ -131,7 +131,7 @@ CREATE INDEX idx_decision_created ON routing_decision (created_at);
 
 -- Insert initial provider data
 INSERT INTO provider (name, base_url, api_key, is_active) VALUES
-('OpenAI', 'https://api.openai.com/v1', 'placeholder-key', TRUE),
+('OpenAI', 'https://api.openai.com', 'placeholder-key', TRUE),
 ('Anthropic', 'https://api.anthropic.com', 'placeholder-key', TRUE);
 
 -- Insert initial model data
