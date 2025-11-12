@@ -12,6 +12,7 @@ import com.prismnetai.dto.ChatCompletionRequest;
 import com.prismnetai.dto.ChatCompletionResponse;
 import com.prismnetai.entity.AiRequest;
 import com.prismnetai.service.RoutingService;
+import com.prismnetai.service.RoutingStrategyInferenceService;
 import com.prismnetai.service.provider.ProviderServiceRegistry;
 import com.prismnetai.validation.ChatCompletionRequestValidator;
 
@@ -30,6 +31,7 @@ public class ChatCompletionController {
     private final RoutingService routingService;
     private final ProviderServiceRegistry providerServiceRegistry;
     private final ChatCompletionRequestValidator validator;
+    private final RoutingStrategyInferenceService routingStrategyInferenceService;
 
     @PostMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE})
     @Operation(summary = "Create chat completion (streaming or non-streaming) with routing",
@@ -51,16 +53,17 @@ public class ChatCompletionController {
         String prompt = extractPrompt(request);
         log.info("ChatCompletionController.createChatCompletion() - Extracted prompt length: {} characters", prompt.length());
 
-        // Route the request
-        log.info("ChatCompletionController.createChatCompletion() - Routing request for user: {} with strategy: {}",
-                  userId, request.getRoutingStrategy());
+        // Infer routing strategy from request structure
+        var inferenceResult = routingStrategyInferenceService.inferRoutingStrategy(request);
+        log.info("ChatCompletionController.createChatCompletion() - Inferred routing strategy: {}, preferredModel: {}",
+                   inferenceResult.getStrategy(), inferenceResult.getPreferredModel());
 
+        // Route the request using inferred strategy
         AiRequest aiRequest = routingService.routeRequest(
             userId,
-            AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase()),
+            inferenceResult,
             prompt,
-            request.getMaxTokens(),
-            request.getPreferredModel()
+            request.getMaxTokens()
         );
 
         log.info("ChatCompletionController.createChatCompletion() - Request routed successfully, requestId: {}, selectedModel: {}, selectedProvider: {}",

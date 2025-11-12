@@ -1,0 +1,14 @@
+{
+  "model": "command",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Explain how blockchain technology works and its key components."
+    }
+  ],
+  "provider": {
+    "sort": "price"
+  },
+  "maxTokens": 300,
+  "temperature": 0.4
+}

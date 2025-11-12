@@ -1,0 +1,11 @@
+{
+  "model": "gemini-pro",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Explain quantum computing and its potential applications."
+    }
+  ],
+  "maxTokens": 300,
+  "temperature": 0.6
+}

@@ -1,6 +1,8 @@
 package com.prismnetai.validation;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
@@ -35,7 +37,7 @@ public class ChatCompletionRequestValidator {
         Map<String, String> errors = new HashMap<>();
 
         validateMessages(request, errors);
-        validateRoutingStrategy(request, errors);
+        validateRoutingConfiguration(request, errors);
         validateMaxTokens(request, errors);
         validateTemperature(request, errors);
 
@@ -83,19 +85,79 @@ public class ChatCompletionRequestValidator {
     }
 
     /**
-     * Validates the routing strategy field.
+     * Validates the routing configuration fields.
+     * Supports both legacy routingStrategy and new flexible routing fields.
      */
-    private void validateRoutingStrategy(ChatCompletionRequest request, Map<String, String> errors) {
-        if (!StringUtils.hasText(request.getRoutingStrategy())) {
-            errors.put("routingStrategy", "routingStrategy cannot be null or empty");
+    private void validateRoutingConfiguration(ChatCompletionRequest request, Map<String, String> errors) {
+        // Check if any routing configuration is provided
+        boolean hasModel = StringUtils.hasText(request.getModel());
+        boolean hasModels = request.getModels() != null && !request.getModels().isEmpty();
+        boolean hasProvider = request.getProvider() != null;
+        boolean hasRoutingStrategy = StringUtils.hasText(request.getRoutingStrategy());
+
+        // At least one routing configuration must be present
+        if (!hasModel && !hasModels && !hasProvider && !hasRoutingStrategy) {
+            errors.put("routing", "At least one routing configuration must be provided: model, models, provider, or routingStrategy");
             return;
         }
 
-        // Validate against known routing strategies
-        try {
-            com.prismnetai.entity.AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            errors.put("routingStrategy", "routingStrategy must be one of: PRICE, LATENCY, THROUGHPUT, AUTO, CUSTOM_ORDER");
+        // Validate single model field
+        if (hasModel) {
+            if (request.getModel().trim().isEmpty()) {
+                errors.put("model", "model cannot be empty if provided");
+            }
+            // Check for conflicting configurations
+            if (hasModels) {
+                errors.put("routing", "Cannot specify both 'model' and 'models' fields");
+            }
+        }
+
+        // Validate models list
+        if (hasModels) {
+            for (int i = 0; i < request.getModels().size(); i++) {
+                String model = request.getModels().get(i);
+                if (!StringUtils.hasText(model)) {
+                    errors.put("models", "models[" + i + "] cannot be null or empty");
+                }
+            }
+        }
+
+        // Validate provider options
+        if (hasProvider) {
+            validateProviderOptions(request.getProvider(), errors);
+        }
+
+        // Validate legacy routing strategy (if provided)
+        if (hasRoutingStrategy) {
+            try {
+                com.prismnetai.entity.AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                errors.put("routingStrategy", "routingStrategy must be one of: PRICE, LATENCY, THROUGHPUT, AUTO, CUSTOM_ORDER, PREFERRED_MODEL");
+            }
+        }
+    }
+
+    /**
+     * Validates provider options configuration.
+     */
+    private void validateProviderOptions(ChatCompletionRequest.ProviderOptions provider, Map<String, String> errors) {
+        // Validate sort field
+        if (StringUtils.hasText(provider.getSort())) {
+            String sort = provider.getSort().toLowerCase();
+            List<String> validSorts = Arrays.asList("throughput", "latency", "price", "cost");
+            if (!validSorts.contains(sort)) {
+                errors.put("provider.sort", "provider.sort must be one of: throughput, latency, price, cost");
+            }
+        }
+
+        // Validate order list
+        if (provider.getOrder() != null && !provider.getOrder().isEmpty()) {
+            for (int i = 0; i < provider.getOrder().size(); i++) {
+                String providerName = provider.getOrder().get(i);
+                if (!StringUtils.hasText(providerName)) {
+                    errors.put("provider.order", "provider.order[" + i + "] cannot be null or empty");
+                }
+            }
         }
     }
 

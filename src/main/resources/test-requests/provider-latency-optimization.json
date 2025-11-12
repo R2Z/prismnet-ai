@@ -1,0 +1,14 @@
+{
+  "model": "gemini-pro",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What are the main differences between SQL and NoSQL databases?"
+    }
+  ],
+  "provider": {
+    "sort": "latency"
+  },
+  "maxTokens": 200,
+  "temperature": 0.3
+}
