@@ -109,7 +109,7 @@ class ChatCompletionControllerTest {
         lenient().when(mockProviderService.callCompletion(any(ChatCompletionRequest.class), eq(aiRequest))).thenReturn(mockResponse);
     }
 
-    /*@Test
+    @Test
     void shouldReturnSuccessfulResponse_whenValidRequestWithPriceRouting() {
         // Given
         ChatCompletionRequest request = createValidRequest("PRICE");
@@ -117,7 +117,8 @@ class ChatCompletionControllerTest {
                 eq("Hello, how are you?"), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createChatCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -311,7 +312,8 @@ class ChatCompletionControllerTest {
                 eq("Hello"), eq(0), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createChatCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -329,7 +331,8 @@ class ChatCompletionControllerTest {
                 eq("Hello"), eq(-1), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createChatCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -347,7 +350,8 @@ class ChatCompletionControllerTest {
                 eq("Hello"), eq(10000), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createChatCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -365,7 +369,8 @@ class ChatCompletionControllerTest {
                 eq(""), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createChatCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -384,11 +389,12 @@ class ChatCompletionControllerTest {
                 eq(longMessage), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createChatCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }*/
+    }
 
     private ChatCompletionRequest createValidRequest(String routingStrategy) {
         ChatCompletionRequest request = new ChatCompletionRequest();
