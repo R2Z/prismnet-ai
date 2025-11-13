@@ -258,3 +258,29 @@ Below are sample JSON request strings for each routing strategy. These can be us
 - Health check: `http://localhost:8080/actuator/health`
 - Metrics: `http://localhost:8080/actuator/metrics`
 - Prometheus: `http://localhost:8080/actuator/prometheus`
+
+
+
+### Docker - DB
+# Build
+docker build -f docker/prismnetai-db.Dockerfile -t prismnetai-db:latest .
+
+# Test
+# Stop & remove any existing container named kingston-db
+docker rm -f prismnetai-db || true
+
+# Run the container (mapping port 3306); because the SQL scripts are included,
+# they will run on first startup to create/populate the `kingston` database.
+docker run -d \
+  --name prismnetai-db \
+  -e MYSQL_ROOT_PASSWORD='t!g3rP_k' \
+  -e MYSQL_DATABASE='kingston' \
+  -e MYSQL_USER='kingston' \
+  -e MYSQL_PASSWORD='t!g3rP_k' \
+  -p 3306:3306 \
+  prismnetai-db:latest
+
+
+### Docker Build - Web
+
+### Docker Run - Web

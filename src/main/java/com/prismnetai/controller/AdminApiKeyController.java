@@ -15,7 +15,7 @@ import java.util.Map;
  * Simple admin controller to create API keys.
  *
  * Security: this endpoint expects the caller to be authenticated with an API key whose clientId
- * matches the environment variable KINGSTON_ADMIN_CLIENT (defaults to 'admin'). The ApiKeyAuthFilter
+ * matches the environment variable PRISMNETAI_ADMIN_CLIENT (defaults to 'admin'). The ApiKeyAuthFilter
  * populates request attribute 'clientId'.
  */
 @RestController
@@ -27,7 +27,7 @@ public class AdminApiKeyController {
 
     public AdminApiKeyController(ApiKeyService apiKeyService) {
         this.apiKeyService = apiKeyService;
-        String c = System.getenv("KINGSTON_ADMIN_CLIENT");
+        String c = System.getenv("PRISMNETAI_ADMIN_CLIENT");
         this.adminClientId = (c != null && !c.isBlank()) ? c : "admin";
     }
 
