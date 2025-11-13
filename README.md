@@ -154,17 +154,110 @@ The `provider` object supports the following configuration:
 }
 ```
 
-### API Documentation
-- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
-  - Interactive API documentation with try-it-out functionality
-  - JWT authentication support for testing endpoints
-  - Complete OpenAPI 3.0 specification
+## Routing Strategies
 
-### Monitoring
-- Health check: `http://localhost:8080/actuator/health`
-- Metrics: `http://localhost:8080/actuator/metrics`
-- Prometheus: `http://localhost:8080/actuator/prometheus`
+### Built-in Strategies
 
+1. **PRICE**: Route to the cheapest available provider
+2. **LATENCY**: Route to the fastest provider
+3. **THROUGHPUT**: Route to the highest throughput provider
+4. **AUTO**: Automatic routing based on current metrics
+5. **CUSTOM_ORDER**: Route according to specified provider order
+6. **PREFERRED_MODEL**: Route to a specific preferred model
+
+### Inference Logic
+
+The system automatically infers the routing strategy based on request structure:
+
+- Single `model` → PREFERRED_MODEL strategy
+- Multiple `models` → CUSTOM_ORDER strategy with fallbacks
+- `provider.sort` → Maps to corresponding strategy (throughput → THROUGHPUT)
+- `provider.order` → CUSTOM_ORDER strategy
+- No routing config → AUTO strategy
+
+## Getting Started
+
+### Prerequisites
+
+- Java 17+
+- Maven 3.6+
+- Database (PostgreSQL/MySQL recommended)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/your-org/prismnet-ai.git
+cd prismnet-ai
+```
+
+2. Configure your database in `application.properties`
+
+3. Build the project:
+```bash
+mvn clean install
+```
+
+4. Run the application:
+```bash
+mvn spring-boot:run
+```
+
+### Configuration
+
+Configure AI providers in your `application.properties`:
+
+```properties
+# OpenAI Configuration
+openai.api.key=your-openai-api-key
+openai.api.url=https://api.openai.com/v1
+
+# Anthropic Configuration
+anthropic.api.key=your-anthropic-api-key
+anthropic.api.url=https://api.anthropic.com
+
+# Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/prismnet
+spring.datasource.username=your-username
+spring.datasource.password=your-password
+```
+
+## Architecture
+
+### Core Components
+
+- **ChatCompletionController**: REST API endpoint handling chat completion requests
+- **RoutingService**: Core routing logic and strategy execution
+- **RoutingStrategyInferenceService**: Intelligent routing strategy inference from request format
+- **Provider Services**: Individual provider implementations (OpenAI, Anthropic, etc.)
+- **Metrics Service**: Performance tracking and analytics
+
+### Request Flow
+
+1. **Request Validation**: Validate request structure and parameters
+2. **Strategy Inference**: Determine routing strategy from request format
+3. **Provider Selection**: Select optimal provider based on strategy
+4. **Request Execution**: Forward request to selected provider
+5. **Response Handling**: Process and return response with routing metadata
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support and questions:
+- Create an issue on GitHub
+- Contact the development team
+- Check the documentation for common solutions
 
 
 ### Docker - DB
