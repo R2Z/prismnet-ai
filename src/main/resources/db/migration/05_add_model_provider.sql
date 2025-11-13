@@ -3,7 +3,7 @@
 USE prismnetai;
 
 -- Create model_provider table
-CREATE TABLE model_provider (
+CREATE TABLE IF NOT EXISTS model_provider (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE,
@@ -20,12 +20,12 @@ ALTER TABLE provider ADD COLUMN model_provider_id BIGINT,
 ADD CONSTRAINT fk_provider_model_provider FOREIGN KEY (model_provider_id) REFERENCES model_provider(id);
 
 -- Insert initial model_provider records
-INSERT INTO model_provider (name, email, phone, address, is_active) VALUES
-('OpenAI Inc.', 'contact@openai.com', '+1-555-0100', 'San Francisco, CA, USA', TRUE),
-('Anthropic PBC', 'contact@anthropic.com', '+1-555-0200', 'San Francisco, CA, USA', TRUE),
-('Google LLC', 'contact@google.com', '+1-555-0300', 'Mountain View, CA, USA', TRUE),
-('Cohere Inc.', 'contact@cohere.com', '+1-555-0400', 'Toronto, ON, Canada', TRUE),
-('Hugging Face Inc.', 'contact@huggingface.co', '+33-1-55-05-00', 'Paris, France', FALSE);
+INSERT INTO model_provider (name, email, phone, address, is_active, created_at, updated_at) VALUES
+('OpenAI Inc.', 'contact@openai.com', '+1-555-0100', 'San Francisco, CA, USA', TRUE, NOW(), NOW()),
+('Anthropic PBC', 'contact@anthropic.com', '+1-555-0200', 'San Francisco, CA, USA', TRUE, NOW(), NOW()),
+('Google LLC', 'contact@google.com', '+1-555-0300', 'Mountain View, CA, USA', TRUE, NOW(), NOW()),
+('Cohere Inc.', 'contact@cohere.com', '+1-555-0400', 'Toronto, ON, Canada', TRUE, NOW(), NOW()),
+('Hugging Face Inc.', 'contact@huggingface.co', '+33-1-55-05-00', 'Paris, France', FALSE, NOW(), NOW());
 
 -- Update existing provider records with model_provider_id
 UPDATE provider SET model_provider_id = 1 WHERE name = 'OpenAI';

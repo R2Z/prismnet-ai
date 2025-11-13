@@ -1,5 +1,6 @@
 package com.prismnetai.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,14 +40,20 @@ public class ChatCompletionController {
     @Operation(summary = "Create chat completion (streaming or non-streaming) with routing",
                 description = "Submit a chat completion request that will be routed based on the specified strategy. Set 'stream' to true for streaming response.")
     public Object createChatCompletion(
-            @RequestBody ChatCompletionRequest request,
-            Authentication authentication) {
+            @RequestBody ChatCompletionRequest request, HttpServletRequest httpRequest) {
 
         log.info("ChatCompletionController.createChatCompletion() - Received chat completion request with stream: {}, messageCount: {}",
                   request.getStream(), request.getMessages() != null ? request.getMessages().size() : 0);
 
-        // Extract user ID from authentication (use anonymous for demo if not authenticated)
-        String userId = (authentication != null && authentication.getName() != null) ? authentication.getName() : "anonymous-demo-user";
+        Object caller = httpRequest.getAttribute("clientId");
+        if (caller == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
+        }
+
+        // --
+
+        // Extract user ID from authentication
+        String userId = caller.toString();
         log.info("ChatCompletionController.createChatCompletion() - Processing request for user: {}", userId);
 
         // Validate request

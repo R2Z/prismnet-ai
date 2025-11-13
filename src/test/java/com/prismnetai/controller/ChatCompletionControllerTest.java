@@ -53,7 +53,7 @@ class ChatCompletionControllerTest {
     private RoutingStrategyInferenceService routingStrategyInferenceService;
 
     @InjectMocks
-    private ChatCompletionControllerV2 controller;
+    private ChatCompletionController controller;
 
     private Authentication authentication;
     private Provider provider;
@@ -129,7 +129,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -171,7 +171,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -189,7 +189,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Messages are required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Messages are required");
     }
@@ -206,7 +206,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Messages are required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Messages are required");
     }
@@ -223,7 +223,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Routing strategy is required");
     }
@@ -240,7 +240,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Routing strategy is required");
     }
@@ -257,7 +257,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Routing strategy is required");
     }
@@ -280,7 +280,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -296,7 +296,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -312,7 +312,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -328,7 +328,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -344,7 +344,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -360,7 +360,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -377,7 +377,7 @@ class ChatCompletionControllerTest {
 
         // When
         @SuppressWarnings("unchecked")
-        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, null);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
