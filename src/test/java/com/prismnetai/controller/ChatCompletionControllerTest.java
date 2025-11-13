@@ -29,6 +29,7 @@ import com.prismnetai.entity.AiRequest;
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.service.RoutingService;
+import com.prismnetai.service.RoutingStrategyInferenceService;
 import com.prismnetai.service.provider.AiProviderService;
 import com.prismnetai.service.provider.ProviderServiceRegistry;
 import com.prismnetai.validation.ChatCompletionRequestValidator;
@@ -47,6 +48,9 @@ class ChatCompletionControllerTest {
 
     @Mock
     private ProviderServiceRegistry providerServiceRegistry;
+
+    @Mock
+    private RoutingStrategyInferenceService routingStrategyInferenceService;
 
     @InjectMocks
     private ChatCompletionControllerV2 controller;
@@ -107,17 +111,25 @@ class ChatCompletionControllerTest {
                 .build())
             .build();
         lenient().when(mockProviderService.callCompletion(any(ChatCompletionRequest.class), eq(aiRequest))).thenReturn(mockResponse);
+
+        // Mock routing strategy inference service
+        lenient().when(routingStrategyInferenceService.inferRoutingStrategy(any(ChatCompletionRequest.class)))
+                .thenReturn(new RoutingStrategyInferenceService.RoutingInferenceResult(
+                        AiRequest.RoutingStrategy.PRICE, null, null));
+
+        // Mock routing service to return aiRequest for any arguments
+        lenient().when(routingService.routeRequest(any(), any(), any(), any()))
+                .thenReturn(aiRequest);
     }
 
     @Test
     void shouldReturnSuccessfulResponse_whenValidRequestWithPriceRouting() {
         // Given
         ChatCompletionRequest request = createValidRequest("PRICE");
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello, how are you?"), eq(100), eq(null))).thenReturn(aiRequest);
 
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -153,15 +165,13 @@ class ChatCompletionControllerTest {
         assistantMessage.setContent("Why did the chicken cross the road?");
 
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(systemMessage, userMessage, assistantMessage));
         request.setMaxTokens(50);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Tell me a joke"), eq(50), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -171,7 +181,7 @@ class ChatCompletionControllerTest {
     void shouldHandleNullMessagesGracefully() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(null);
         request.setMaxTokens(100);
 
@@ -179,7 +189,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Messages are required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Messages are required");
     }
@@ -188,7 +198,7 @@ class ChatCompletionControllerTest {
     void shouldHandleEmptyMessagesList() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of());
         request.setMaxTokens(100);
 
@@ -196,7 +206,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Messages are required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Messages are required");
     }
@@ -205,7 +215,7 @@ class ChatCompletionControllerTest {
     void shouldHandleNullRoutingStrategy() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy(null);
+        // No routing strategy set
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
@@ -213,7 +223,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Routing strategy is required");
     }
@@ -222,7 +232,7 @@ class ChatCompletionControllerTest {
     void shouldHandleEmptyRoutingStrategy() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("");
+        // Empty routing strategy removed
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
@@ -230,7 +240,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Routing strategy is required");
     }
@@ -239,7 +249,7 @@ class ChatCompletionControllerTest {
     void shouldHandleWhitespaceOnlyRoutingStrategy() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("   ");
+        // Whitespace routing strategy removed
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(100);
 
@@ -247,7 +257,7 @@ class ChatCompletionControllerTest {
         doThrow(new IllegalArgumentException("Routing strategy is required")).when(validator).validate(request);
 
         // When & Then
-        assertThatThrownBy(() -> controller.createCompletion(request, authentication))
+        assertThatThrownBy(() -> controller.createChatCompletion(request, authentication))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Routing strategy is required");
     }
@@ -264,15 +274,13 @@ class ChatCompletionControllerTest {
         assistantMessage.setContent("I can help you");
 
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(systemMessage, assistantMessage));
         request.setMaxTokens(100);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("No user message found"), eq(100), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -282,15 +290,13 @@ class ChatCompletionControllerTest {
     void shouldHandleNullMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(null);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(null), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -300,15 +306,13 @@ class ChatCompletionControllerTest {
     void shouldHandleZeroMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(0);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(0), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -318,15 +322,13 @@ class ChatCompletionControllerTest {
     void shouldHandleNegativeMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(-1);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(-1), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -336,15 +338,13 @@ class ChatCompletionControllerTest {
     void shouldHandleLargeMaxTokens() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello")));
         request.setMaxTokens(10000);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq("Hello"), eq(10000), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -354,15 +354,13 @@ class ChatCompletionControllerTest {
     void shouldHandleEmptyMessageContent() {
         // Given
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("")));
         request.setMaxTokens(100);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq(""), eq(100), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -373,15 +371,13 @@ class ChatCompletionControllerTest {
         // Given
         String longMessage = "A".repeat(10000);
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy("PRICE");
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage(longMessage)));
         request.setMaxTokens(100);
 
-        when(routingService.routeRequest(eq("test-user"), eq(AiRequest.RoutingStrategy.PRICE),
-                eq(longMessage), eq(100), eq(null))).thenReturn(aiRequest);
-
         // When
-        ResponseEntity<ChatCompletionResponse> response = controller.createCompletion(request, authentication);
+        @SuppressWarnings("unchecked")
+        ResponseEntity<ChatCompletionResponse> response = (ResponseEntity<ChatCompletionResponse>) controller.createChatCompletion(request, authentication);
 
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -389,7 +385,8 @@ class ChatCompletionControllerTest {
 
     private ChatCompletionRequest createValidRequest(String routingStrategy) {
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setRoutingStrategy(routingStrategy);
+        // Legacy field removed, use model instead
+        request.setModel("openai/gpt-4");
         request.setMessages(List.of(createUserMessage("Hello, how are you?")));
         request.setMaxTokens(100);
         return request;

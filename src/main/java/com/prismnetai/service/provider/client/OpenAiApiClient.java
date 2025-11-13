@@ -57,4 +57,33 @@ public class OpenAiApiClient {
             throw e; // Re-throw to be handled by caller
         }
     }
+
+    /**
+     * Makes a streaming HTTP call to the OpenAI chat completions API.
+     *
+     * @param requestPayload the request payload
+     * @param baseUrl the base URL of the provider
+     * @param apiKey the API key for authentication
+     * @return a Flux of response chunks as strings
+     * @throws Exception if the HTTP call fails
+     */
+    public reactor.core.publisher.Flux<String> chatCompletionsStream(Map<String, Object> requestPayload, String baseUrl, String apiKey) {
+        try {
+            String fullUrl = baseUrl + COMPLETIONS_ENDPOINT;
+
+            log.info("OpenAiApiClient.chatCompletionsStream() - Headers: Content-Type={}, Authorization=Bearer [REDACTED]", MediaType.APPLICATION_JSON_VALUE);
+
+            return webClient.post()
+                .uri(fullUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + apiKey)
+                .bodyValue(requestPayload)
+                .retrieve()
+                .bodyToFlux(String.class)
+                .timeout(API_TIMEOUT);
+        } catch (Exception e) {
+            log.error("OpenAiApiClient.chatCompletionsStream() - Failed to make streaming API call to OpenAI: {}", e.getMessage());
+            throw e; // Re-throw to be handled by caller
+        }
+    }
 }

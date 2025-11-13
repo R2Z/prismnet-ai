@@ -49,6 +49,27 @@ public class DefaultProviderService implements AiProviderService {
     }
 
     @Override
+    public reactor.core.publisher.Flux<String> callStreamingCompletion(ChatCompletionRequest request, AiRequest aiRequest) {
+        if (request == null) {
+            throw new IllegalArgumentException("ChatCompletionRequest cannot be null");
+        }
+        if (aiRequest == null) {
+            throw new IllegalArgumentException("AiRequest cannot be null");
+        }
+
+        log.info("DefaultProviderService.callStreamingCompletion() - Using default streaming provider service for provider: {}, requestId: {}",
+                aiRequest.getSelectedProvider().getName(), aiRequest.getId());
+
+        return reactor.core.publisher.Flux.just(
+            "data: {\"id\":\"chatcmpl-" + aiRequest.getId() + "\",\"object\":\"chat.completion.chunk\",\"created\":" + (System.currentTimeMillis() / 1000) + ",\"model\":\"" + aiRequest.getSelectedModel().getModelId() + "\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+            "data: {\"id\":\"chatcmpl-" + aiRequest.getId() + "\",\"object\":\"chat.completion.chunk\",\"created\":" + (System.currentTimeMillis() / 1000) + ",\"model\":\"" + aiRequest.getSelectedModel().getModelId() + "\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"This is a placeholder streaming response.\"},\"finish_reason\":null}]}\n\n",
+            "data: {\"id\":\"chatcmpl-" + aiRequest.getId() + "\",\"object\":\"chat.completion.chunk\",\"created\":" + (System.currentTimeMillis() / 1000) + ",\"model\":\"" + aiRequest.getSelectedModel().getModelId() + "\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" Provider routing to \"},\"finish_reason\":null}]}\n\n",
+            "data: {\"id\":\"chatcmpl-" + aiRequest.getId() + "\",\"object\":\"chat.completion.chunk\",\"created\":" + (System.currentTimeMillis() / 1000) + ",\"model\":\"" + aiRequest.getSelectedModel().getModelId() + "\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"" + aiRequest.getSelectedProvider().getName() + " successful.\"},\"finish_reason\":\"stop\"}]}\n\n",
+            "data: [DONE]\n\n"
+        );
+    }
+
+    @Override
     public String getProviderName() {
         return PROVIDER_NAME;
     }
@@ -67,7 +88,7 @@ public class DefaultProviderService implements AiProviderService {
             .created((int) (System.currentTimeMillis() / 1000))
             .model(aiRequest.getSelectedModel().getModelId())
             .routingInfo(ChatCompletionResponse.RoutingInfo.builder()
-                .strategy(request.getRoutingStrategy())
+                .strategy(aiRequest.getRoutingStrategy().name())
                 .provider(aiRequest.getSelectedProvider().getName())
                 .costSavings(BigDecimal.ZERO)
                 .latencyMs(0L)

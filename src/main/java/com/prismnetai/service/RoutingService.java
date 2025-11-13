@@ -42,7 +42,36 @@ public class RoutingService {
      */
     @Transactional
     public AiRequest routeRequest(String userId, AiRequest.RoutingStrategy routingStrategy,
-                                    String prompt, Integer maxTokens, String preferredModel) {
+                                     String prompt, Integer maxTokens, String preferredModel) {
+        return routeRequest(userId, routingStrategy, prompt, maxTokens, preferredModel, null);
+    }
+
+    /**
+     * Routes an AI request based on inferred routing strategy from flexible request format.
+     * This method validates inputs, selects an appropriate model using the routing strategy,
+     * and creates a persistent record of the request.
+     *
+     * @param userId the ID of the user making the request
+     * @param inferenceResult the inferred routing strategy and configuration
+     * @param prompt the text prompt for the AI request
+     * @param maxTokens the maximum number of tokens to generate (can be null)
+     * @return the created AiRequest entity with routing information
+     * @throws RoutingException if routing fails due to no available providers or models
+     * @throws IllegalArgumentException if input parameters are invalid
+     */
+    @Transactional
+    public AiRequest routeRequest(String userId, RoutingStrategyInferenceService.RoutingInferenceResult inferenceResult,
+                                     String prompt, Integer maxTokens) {
+        return routeRequest(userId, inferenceResult.getStrategy(), prompt, maxTokens,
+                           inferenceResult.getPreferredModel(), inferenceResult.getProviderOptions());
+    }
+
+    /**
+     * Internal routing method that handles both legacy and new routing approaches.
+     */
+    private AiRequest routeRequest(String userId, AiRequest.RoutingStrategy routingStrategy,
+                                     String prompt, Integer maxTokens, String preferredModel,
+                                     com.prismnetai.dto.ChatCompletionRequest.ProviderOptions providerOptions) {
 
         // Input validation
         validateRouteRequestInputs(userId, routingStrategy, prompt);
@@ -64,9 +93,12 @@ public class RoutingService {
         Optional<Model> selectedModel = strategy.selectModel(availableProviders, userId, preferredModel);
         if (selectedModel.isEmpty()) {
             log.error("RoutingService.routeRequest() - No suitable model found for strategy: {} among {} providers",
-                       routingStrategy, availableProviders.size());
+                        routingStrategy, availableProviders.size());
             throw new com.prismnetai.exception.RoutingException("No suitable model found for routing strategy: " + routingStrategy);
         }
+
+        // TODO: Apply provider-specific filtering and ordering if providerOptions provided
+        // This will be implemented when we enhance the routing strategies to support provider options
 
         Model model = selectedModel.get();
         log.info("RoutingService.routeRequest() - Selected model: {} from provider: {} for user: {}",

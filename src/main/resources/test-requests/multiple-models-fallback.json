@@ -1,0 +1,11 @@
+{
+  "models": ["claude-opus-4-20250514", "gpt-4", "gemini-pro"],
+  "messages": [
+    {
+      "role": "user",
+      "content": "Write a creative short story about artificial intelligence becoming self-aware."
+    }
+  ],
+  "maxTokens": 800,
+  "temperature": 0.9
+}

@@ -1,250 +1,156 @@
-# PrismNet AI
+# PrismNet AI - Intelligent AI Routing Platform
 
-A unified API layer for routing AI requests across hundreds of models from multiple providers, enabling intelligent routing by price, throughput, latency, custom ordering, and auto-optimization.
+PrismNet AI is a sophisticated AI routing platform that intelligently routes requests across multiple AI providers based on various strategies including cost, latency, throughput, and custom preferences.
 
 ## Features
 
-### Core Routing Strategies
-- **Price Routing**: Automatically route to the cheapest available provider
-- **Throughput Routing**: Prioritize providers with highest throughput for high-volume requests
-- **Latency Routing**: Route to providers with lowest latency for real-time applications
-- **Custom Provider Ordering**: Define specific provider preferences and priorities
-- **Auto Router**: Optimize prompts across models for best output quality
+- **Intelligent Routing**: Route requests based on cost, latency, throughput, or custom provider ordering
+- **Multi-Provider Support**: Seamlessly integrate with multiple AI providers
+- **Flexible Request Formats**: Support for various request structures to accommodate different routing needs
+- **Fallback Mechanisms**: Automatic fallback to alternative providers when primary options fail
+- **Real-time Metrics**: Track performance, cost, and latency across providers
+- **Spring Boot Integration**: Built with Spring Boot for enterprise-grade reliability
 
-### Key Capabilities
-- Unified RESTful API across all providers
-- Support for hundreds of AI models
-- Real-time performance monitoring and metrics
-- Automatic failover and provider availability handling
-- Concurrent request support with different routing preferences
-- Comprehensive logging and observability
+## API Usage
 
-## Quick Start
+### Chat Completions Endpoint
 
-### Basic Usage
-
-#### Authentication
-All requests require authentication using JWT or API key:
-
-**For Development/Testing:**
-- The application currently accepts any username in JWT tokens (no password validation)
-- You can use any string as an API key for testing
-- **Important**: The JWT secret key must be at least 256 bits (32 characters) for HMAC-SHA algorithms
-
-**⚠️ SECURITY WARNING:**
-- The current authentication setup is for development/testing only (profiles: local, dev, test)
-- **DO NOT deploy to production** with the default JWT secret or simple API key validation
-- In production profiles, only proper JWT tokens will be accepted
-- Implement proper user authentication, password validation, and use environment variables for secrets
-- Generate a secure random 256-bit (32+ character) JWT secret for production
-
-```bash
-# JWT (recommended for users)
-curl -H "Authorization: Bearer YOUR_JWT_TOKEN" ...
-
-# API Key (for service accounts)
-curl -H "X-API-Key: YOUR_API_KEY" ...
+```
+POST /v1/chat/completions
 ```
 
-**To get a Bearer token for Postman:**
-1. Use Swagger UI at `http://localhost:8080/swagger-ui.html`
-2. Click "Authorize" button in the top right
-3. Enter any username (e.g., "test-user") in the JWT field
-4. Click "Authorize" - this will set the token for all requests
-5. Or manually set header: `Authorization: Bearer test-user`
+The API supports multiple flexible request formats for different routing scenarios:
 
-**Alternative: Use API Key header instead of JWT:**
-- Set header: `X-API-Key: test-user` (any non-empty string works for testing)
-- Or use Bearer header with simple string: `Authorization: Bearer test-user`
+#### 1. Single Model Routing (Direct)
+Route to a specific model directly:
 
-**Required Headers for /v1/chat/completions:**
-- `Authorization: Bearer <token>` (or `X-API-Key: <key>`)
-- `Content-Type: application/json`
-
-#### Route by Price (Default)
-```bash
-curl -X POST http://localhost:8080/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "routingStrategy": "PRICE",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Hello, how are you?"
-      }
-    ],
-    "maxTokens": 100
-  }'
-```
-
-#### Route by Latency
-```bash
-curl -X POST http://localhost:8080/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "routingStrategy": "LATENCY",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Explain quantum computing in simple terms"
-      }
-    ],
-    "maxTokens": 200,
-    "temperature": 0.7
-  }'
-  
-  
-```
-
-#### Custom Provider Ordering
-First, create a routing rule:
-```bash
-curl -X POST http://localhost:8080/v1/routing/rules \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "My Preferred Order",
-    "description": "Prioritize Anthropic, then OpenAI",
-    "providerOrder": ["Anthropic", "OpenAI"]
-  }'
-```
-
-Then use it in requests:
-```bash
-curl -X POST http://localhost:8080/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "routingStrategy": "CUSTOM_ORDER",
-    "routingRuleId": "rule-456",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Write a haiku about artificial intelligence"
-      }
-    ],
-    "maxTokens": 50
-  }'
-```
-
-#### Auto Router
-```bash
-curl -X POST http://localhost:8080/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "routingStrategy": "AUTO",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Create a complex algorithm for sorting a list"
-      }
-    ],
-    "maxTokens": 300
-  }'
-```
-
-## Routing Strategy Samples
-
-Below are sample JSON request strings for each routing strategy. These can be used in the request body for POST `/v1/chat/completions`.
-
-### PRICE
 ```json
 {
- "routingStrategy": "PRICE",
- "messages": [
-   {
-     "role": "user",
-     "content": "Hello, how are you?"
-   }
- ],
- "maxTokens": 100,
- "temperature": 1.0,
- "stream": false
+  "model": "openai/gpt-4o",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is the meaning of life?"
+    }
+  ]
 }
 ```
 
-### THROUGHPUT
+#### 2. Multiple Models with Fallback
+Specify multiple models for fallback routing:
+
 ```json
 {
- "routingStrategy": "THROUGHPUT",
- "messages": [
-   {
-     "role": "user",
-     "content": "Generate a list of 10 random numbers."
-   }
- ],
- "maxTokens": 150,
- "temperature": 0.5,
- "stream": false
+  "models": ["anthropic/claude-3.5-sonnet", "gryphe/mythomax-l2-13b"],
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is the meaning of life?"
+    }
+  ]
 }
 ```
 
-### LATENCY
+#### 3. Provider-Optimized Routing
+Route based on provider performance criteria:
+
 ```json
 {
- "routingStrategy": "LATENCY",
- "messages": [
-   {
-     "role": "user",
-     "content": "Explain quantum computing in simple terms."
-   }
- ],
- "maxTokens": 200,
- "temperature": 0.7,
- "stream": false
+  "model": "meta-llama/llama-3.1-70b-instruct",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello"
+    }
+  ],
+  "provider": {
+    "sort": "throughput"
+  }
 }
 ```
 
-### CUSTOM_ORDER
+#### 4. Custom Provider Ordering
+Specify exact provider priority order:
+
 ```json
 {
- "routingStrategy": "CUSTOM_ORDER",
- "routingRuleId": "rule-456",
- "messages": [
-   {
-     "role": "user",
-     "content": "Write a haiku about artificial intelligence."
-   }
- ],
- "maxTokens": 50,
- "temperature": 1.0,
- "stream": false
+  "model": "mistralai/mixtral-8x7b-instruct",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello"
+    }
+  ],
+  "provider": {
+    "order": ["openai", "together"],
+    "allow_fallbacks": false
+  }
 }
 ```
 
-### AUTO
+#### 5. Legacy Routing Strategy (Backward Compatible)
+Continue using explicit routing strategies:
+
 ```json
 {
- "routingStrategy": "AUTO",
- "messages": [
-   {
-     "role": "user",
-     "content": "Create a complex algorithm for sorting a list."
-   }
- ],
- "maxTokens": 300,
- "temperature": 0.8,
- "stream": false
+  "routingStrategy": "PRICE",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is the meaning of life?"
+    }
+  ]
 }
 ```
 
-### PREFERRED_MODEL
+### Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `model` | string | No* | Specific model to route to |
+| `models` | array | No* | List of models for fallback routing |
+| `provider` | object | No* | Provider-specific configuration |
+| `routingStrategy` | string | No* | Legacy routing strategy (PRICE, LATENCY, THROUGHPUT, AUTO, CUSTOM_ORDER, PREFERRED_MODEL) |
+| `messages` | array | Yes | Chat messages |
+| `maxTokens` | integer | No | Maximum tokens to generate (default: 100) |
+| `temperature` | number | No | Sampling temperature (0.0-2.0, default: 1.0) |
+| `stream` | boolean | No | Enable streaming response (default: false) |
+
+*At least one routing configuration (`model`, `models`, `provider`, or `routingStrategy`) must be provided.
+
+### Provider Options
+
+The `provider` object supports the following configuration:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sort` | string | Sort criteria: "throughput", "latency", "price", "cost" |
+| `order` | array | Custom provider priority order |
+| `allowFallbacks` | boolean | Whether to allow fallbacks to other providers |
+
+### Response Format
+
 ```json
 {
- "routingStrategy": "PREFERRED_MODEL",
- "preferredModel": "gpt-4",
- "messages": [
-   {
-     "role": "user",
-     "content": "Summarize the benefits of renewable energy."
-   }
- ],
- "maxTokens": 250,
- "temperature": 0.9,
- "stream": false
+  "id": "chatcmpl-123",
+  "object": "chat.completion",
+  "created": 1677652288,
+  "model": "gpt-3.5-turbo",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "The meaning of life is..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 13,
+    "completion_tokens": 7,
+    "total_tokens": 20
+  }
 }
 ```
 

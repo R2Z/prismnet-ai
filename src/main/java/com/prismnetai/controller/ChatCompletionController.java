@@ -1,6 +1,6 @@
 package com.prismnetai.controller;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +11,7 @@ import com.prismnetai.dto.ChatCompletionRequest;
 import com.prismnetai.dto.ChatCompletionResponse;
 import com.prismnetai.entity.AiRequest;
 import com.prismnetai.service.RoutingService;
+import com.prismnetai.service.RoutingStrategyInferenceService;
 import com.prismnetai.service.provider.ProviderServiceRegistry;
 import com.prismnetai.validation.ChatCompletionRequestValidator;
 
@@ -32,58 +33,58 @@ public class ChatCompletionController {
     private final RoutingService routingService;
     private final ProviderServiceRegistry providerServiceRegistry;
     private final ChatCompletionRequestValidator validator;
+    private final RoutingStrategyInferenceService routingStrategyInferenceService;
 
-    @PostMapping
-    @Operation(summary = "Create chat completion with routing",
-                description = "Submit a chat completion request that will be routed based on the specified strategy")
-    public ResponseEntity<?> createCompletion(
-            @RequestBody ChatCompletionRequest request, HttpServletRequest httpRequest) {
+    @PostMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_EVENT_STREAM_VALUE})
+    @Operation(summary = "Create chat completion (streaming or non-streaming) with routing",
+                description = "Submit a chat completion request that will be routed based on the specified strategy. Set 'stream' to true for streaming response.")
+    public Object createChatCompletion(
+            @RequestBody ChatCompletionRequest request,
+            Authentication authentication) {
 
-        log.info("ChatCompletionController.createCompletion() - Received chat completion request with routing strategy: {}, messageCount: {}",
-                  request.getRoutingStrategy(), request.getMessages() != null ? request.getMessages().size() : 0);
-        // -- 
+        log.info("ChatCompletionController.createChatCompletion() - Received chat completion request with stream: {}, messageCount: {}",
+                  request.getStream(), request.getMessages() != null ? request.getMessages().size() : 0);
 
-        Object caller = httpRequest.getAttribute("clientId");
-        if (caller == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "forbidden"));
-        }
-
-        // --
-
-        // Extract user ID from authentication
-        String userId = caller.toString();
-        log.info("ChatCompletionController.createCompletion() - Processing request for authenticated user: {}", userId);
+        // Extract user ID from authentication (use anonymous for demo if not authenticated)
+        String userId = (authentication != null && authentication.getName() != null) ? authentication.getName() : "anonymous-demo-user";
+        log.info("ChatCompletionController.createChatCompletion() - Processing request for user: {}", userId);
 
         // Validate request
         validator.validate(request);
 
         String prompt = extractPrompt(request);
-        log.info("ChatCompletionController.createCompletion() - Extracted prompt length: {} characters", prompt.length());
+        log.info("ChatCompletionController.createChatCompletion() - Extracted prompt length: {} characters", prompt.length());
 
-        // Route the request
-        log.info("ChatCompletionController.createCompletion() - Routing request for user: {} with strategy: {}",
-                  userId, request.getRoutingStrategy());
+        // Infer routing strategy from request structure
+        var inferenceResult = routingStrategyInferenceService.inferRoutingStrategy(request);
+        log.info("ChatCompletionController.createChatCompletion() - Inferred routing strategy: {}, preferredModel: {}",
+                   inferenceResult.getStrategy(), inferenceResult.getPreferredModel());
 
+        // Route the request using inferred strategy
         AiRequest aiRequest = routingService.routeRequest(
             userId,
-            AiRequest.RoutingStrategy.valueOf(request.getRoutingStrategy().toUpperCase()),
+            inferenceResult,
             prompt,
-            request.getMaxTokens(),
-            request.getPreferredModel()
+            request.getMaxTokens()
         );
 
-        log.info("ChatCompletionController.createCompletion() - Request routed successfully, requestId: {}, selectedModel: {}, selectedProvider: {}",
+        log.info("ChatCompletionController.createChatCompletion() - Request routed successfully, requestId: {}, selectedModel: {}, selectedProvider: {}",
                   aiRequest.getId(), aiRequest.getSelectedModel().getModelId(), aiRequest.getSelectedProvider().getName());
 
-        // Get the appropriate provider service and call the completion
+        // Get the appropriate provider service
         var providerService = providerServiceRegistry.getProviderService(aiRequest.getSelectedProvider().getName());
-        ChatCompletionResponse response = providerService.callCompletion(request, aiRequest);
 
-        log.info("ChatCompletionController.createCompletion() - Successfully processed request for user: {}, returning response",
-                  userId);
-
-        return ResponseEntity.ok(response);
+        // Check if streaming is requested
+        if (request.getStream() != null && request.getStream()) {
+            log.info("ChatCompletionController.createChatCompletion() - Processing streaming request for user: {}", userId);
+            return providerService.callStreamingCompletion(request, aiRequest);
+        } else {
+            log.info("ChatCompletionController.createChatCompletion() - Processing non-streaming request for user: {}", userId);
+            ChatCompletionResponse response = providerService.callCompletion(request, aiRequest);
+            return ResponseEntity.ok(response);
+        }
     }
+
 
     /**
      * Extracts the user prompt from the chat completion request.
