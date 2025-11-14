@@ -31,4 +31,7 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
 
     @Query("SELECT m FROM Model m WHERE m.isActive = true AND m.modelId = :modelId AND m.provider.id IN :providerIds")
     List<Model> findActiveModelsByModelIdAndProviderIds(@Param("modelId") String modelId, @Param("providerIds") List<Long> providerIds);
+
+    @Query("SELECT m FROM Model m WHERE m.isActive = true AND m.modelId = :modelId AND m.provider = :provider")
+    Optional<Model> findActiveByModelIdAndProvider(@Param("modelId") String modelId, @Param("provider") Provider provider);
 }

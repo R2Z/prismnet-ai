@@ -86,7 +86,8 @@ public class ChatCompletionRequestValidator {
 
     /**
      * Validates the routing configuration fields.
-     * Supports new flexible routing fields.
+     * Supports new flexible routing fields. Routing configuration is optional - if none provided,
+     * the system will default to AUTO routing strategy.
      */
     private void validateRoutingConfiguration(ChatCompletionRequest request, Map<String, String> errors) {
         // Check if any routing configuration is provided
@@ -94,19 +95,13 @@ public class ChatCompletionRequestValidator {
         boolean hasModels = request.getModels() != null && !request.getModels().isEmpty();
         boolean hasProvider = request.getProvider() != null;
 
-        // At least one routing configuration must be present
-        if (!hasModel && !hasModels && !hasProvider) {
-            errors.put("routing", "At least one routing configuration must be provided: model, models, or provider");
-            return;
-        }
-
         // Validate single model field
-        if (hasModel) {
+        if (request.getModel() != null) {
             if (request.getModel().trim().isEmpty()) {
                 errors.put("model", "model cannot be empty if provided");
             }
-            // Check for conflicting configurations
-            if (hasModels) {
+            // Check for conflicting configurations only if model is actually provided (not empty)
+            if (hasModels && hasModel) {
                 errors.put("routing", "Cannot specify both 'model' and 'models' fields");
             }
         }

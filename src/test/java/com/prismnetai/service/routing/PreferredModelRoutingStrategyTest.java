@@ -18,6 +18,7 @@ import org.mockito.quality.Strictness;
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.repository.ModelRepository;
+import com.prismnetai.repository.ProviderRepository;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -25,6 +26,9 @@ class PreferredModelRoutingStrategyTest {
 
     @Mock
     private ModelRepository modelRepository;
+
+    @Mock
+    private ProviderRepository providerRepository;
 
     @Mock
     private Provider provider1;
@@ -46,11 +50,13 @@ class PreferredModelRoutingStrategyTest {
 
     @BeforeEach
     void setUp() {
-        strategy = new PreferredModelRoutingStrategy(modelRepository);
+        strategy = new PreferredModelRoutingStrategy(modelRepository, providerRepository);
 
         // Setup providers
         when(provider1.getId()).thenReturn(1L);
+        when(provider1.getName()).thenReturn("OpenAI");
         when(provider2.getId()).thenReturn(2L);
+        when(provider2.getName()).thenReturn("Anthropic");
 
         availableProviders = List.of(provider1, provider2);
 
@@ -148,6 +154,78 @@ class PreferredModelRoutingStrategyTest {
         // Then
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(model3);
+    }
+
+    @Test
+    void selectModel_shouldReturnModel_whenProviderModelFormatUsedAndProviderFound() {
+        // Given
+        String preferredModel = "OpenAI/gpt-4";
+
+        when(providerRepository.findByName("OpenAI")).thenReturn(Optional.of(provider1));
+        when(modelRepository.findActiveByModelIdAndProvider("gpt-4", provider1)).thenReturn(Optional.of(model1));
+
+        // When
+        Optional<Model> result = strategy.selectModel(availableProviders, "user1", preferredModel);
+
+        // Then
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(model1);
+    }
+
+    @Test
+    void selectModel_shouldReturnEmpty_whenProviderModelFormatUsedAndProviderNotFound() {
+        // Given
+        String preferredModel = "Unknown/gpt-4";
+
+        when(providerRepository.findByName("Unknown")).thenReturn(Optional.empty());
+
+        // When
+        Optional<Model> result = strategy.selectModel(availableProviders, "user1", preferredModel);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void selectModel_shouldReturnEmpty_whenProviderModelFormatUsedAndProviderNotAvailable() {
+        // Given
+        String preferredModel = "OpenAI/gpt-4";
+        Provider unavailableProvider = provider2; // provider2 is not in availableProviders for this test
+
+        when(providerRepository.findByName("OpenAI")).thenReturn(Optional.of(unavailableProvider));
+
+        // When
+        Optional<Model> result = strategy.selectModel(List.of(provider1), "user1", preferredModel);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void selectModel_shouldReturnEmpty_whenProviderModelFormatUsedAndModelNotFound() {
+        // Given
+        String preferredModel = "OpenAI/unknown-model";
+
+        when(providerRepository.findByName("OpenAI")).thenReturn(Optional.of(provider1));
+        when(modelRepository.findActiveByModelIdAndProvider("unknown-model", provider1)).thenReturn(Optional.empty());
+
+        // When
+        Optional<Model> result = strategy.selectModel(availableProviders, "user1", preferredModel);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void selectModel_shouldReturnEmpty_whenInvalidProviderModelFormat() {
+        // Given
+        String preferredModel = "invalid/format/extra";
+
+        // When
+        Optional<Model> result = strategy.selectModel(availableProviders, "user1", preferredModel);
+
+        // Then
+        assertThat(result).isEmpty();
     }
 
     @Test

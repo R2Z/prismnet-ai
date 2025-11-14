@@ -63,16 +63,14 @@ public class ChatCompletionRequestValidatorTest {
 
 
     @Test
-    void testInvalidNoRoutingConfiguration() {
+    void testValidNoRoutingConfigurationDefaultsToAuto() {
         // Given
         ChatCompletionRequest request = ChatCompletionRequest.builder()
                 .messages(List.of(new ChatCompletionRequest.ChatMessage("user", "Hello")))
                 .build();
 
         // When & Then
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> validator.validate(request));
-        assertTrue(exception.getValidationErrors().containsKey("routing"));
+        assertDoesNotThrow(() -> validator.validate(request));
     }
 
     @Test
@@ -86,9 +84,8 @@ public class ChatCompletionRequestValidatorTest {
         // When & Then
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> validator.validate(request));
-        // The validation should fail because empty model is not considered valid routing config
-        // So it should fail with "routing" error, not "model" error
-        assertTrue(exception.getValidationErrors().containsKey("routing"));
+        // The validation should fail because empty model is invalid
+        assertTrue(exception.getValidationErrors().containsKey("model"));
     }
 
     @Test

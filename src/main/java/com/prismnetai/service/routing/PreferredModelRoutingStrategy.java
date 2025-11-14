@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.prismnetai.entity.Model;
 import com.prismnetai.entity.Provider;
 import com.prismnetai.repository.ModelRepository;
+import com.prismnetai.repository.ProviderRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PreferredModelRoutingStrategy implements RoutingStrategy {
 
     private final ModelRepository modelRepository;
+    private final ProviderRepository providerRepository;
 
     /**
      * Selects the first active instance of the user's preferred model from available providers.
@@ -48,6 +50,51 @@ public class PreferredModelRoutingStrategy implements RoutingStrategy {
         log.info("PreferredModelRoutingStrategy.selectModel() - Evaluating {} available providers for preferred model: {}",
                  availableProviders.size(), preferredModel);
 
+        // Check if preferredModel contains provider prefix
+        if (preferredModel.contains("/")) {
+            return selectModelWithProvider(availableProviders, preferredModel);
+        } else {
+            return selectModelLegacy(availableProviders, preferredModel);
+        }
+    }
+
+    private Optional<Model> selectModelWithProvider(List<Provider> availableProviders, String preferredModel) {
+        String[] parts = preferredModel.split("/", 2);
+        if (parts.length != 2) {
+            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Invalid model format: {}", preferredModel);
+            return Optional.empty();
+        }
+
+        String providerName = parts[0];
+        String modelId = parts[1];
+
+        // Find provider by name
+        Optional<Provider> providerOpt = providerRepository.findByName(providerName);
+        if (providerOpt.isEmpty()) {
+            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Provider not found: {}", providerName);
+            return Optional.empty();
+        }
+
+        Provider provider = providerOpt.get();
+
+        // Check if provider is available
+        if (!availableProviders.contains(provider)) {
+            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Provider {} not in available providers", providerName);
+            return Optional.empty();
+        }
+
+        // Find active model
+        Optional<Model> model = modelRepository.findActiveByModelIdAndProvider(modelId, provider);
+        if (model.isEmpty()) {
+            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Model {} not found for provider {}", modelId, providerName);
+            return Optional.empty();
+        }
+
+        log.info("PreferredModelRoutingStrategy.selectModelWithProvider() - Selected model: {} from provider: {}", modelId, providerName);
+        return model;
+    }
+
+    private Optional<Model> selectModelLegacy(List<Provider> availableProviders, String preferredModel) {
         // Extract provider IDs for efficient querying
         List<Long> providerIds = availableProviders.stream()
                 .map(Provider::getId)
@@ -57,17 +104,16 @@ public class PreferredModelRoutingStrategy implements RoutingStrategy {
         List<Model> matchingModels = modelRepository.findActiveModelsByModelIdAndProviderIds(preferredModel, providerIds);
 
         if (matchingModels.isEmpty()) {
-            log.warn("PreferredModelRoutingStrategy.selectModel() - Preferred model '{}' not found among active models for available providers",
+            log.warn("PreferredModelRoutingStrategy.selectModelLegacy() - Preferred model '{}' not found among active models for available providers",
                      preferredModel);
             return Optional.empty();
         }
 
         // Select the first matching model (providers are checked in order they appear in availableProviders)
         Model selectedModel = matchingModels.get(0);
-        log.info("PreferredModelRoutingStrategy.selectModel() - Selected preferred model: {} from provider: {}",
+        log.info("PreferredModelRoutingStrategy.selectModelLegacy() - Selected preferred model: {} from provider: {}",
                  selectedModel.getModelId(), selectedModel.getProvider().getName());
 
-        log.info("PreferredModelRoutingStrategy.selectModel() - Completed preferred model selection");
         return Optional.of(selectedModel);
     }
 
