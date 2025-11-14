@@ -272,8 +272,8 @@ docker rm -f prismnetai-db || true
 docker run -d \
   --name prismnetai-db \
   -e MYSQL_ROOT_PASSWORD='t!g3rP_k' \
-  -e MYSQL_DATABASE='kingston' \
-  -e MYSQL_USER='kingston' \
+  -e MYSQL_DATABASE='prismnetai' \
+  -e MYSQL_USER='prismnetai' \
   -e MYSQL_PASSWORD='t!g3rP_k' \
   -p 3306:3306 \
   prismnetai-db:latest
@@ -298,3 +298,19 @@ docker run --rm -p 8080:8080 \
   -e SERVER_PORT=8080 \
   --name prismnetai-web \
   prismnetai-web:local
+
+
+  ### AWS CLI Commands
+  #login
+aws ecr get-login-password --region eu-west-1 \
+  | docker login \
+    --username AWS \
+    --password-stdin 094840068990.dkr.ecr.eu-west-1.amazonaws.com
+
+# API
+docker tag prismnetai-db:latest 094840068990.dkr.ecr.eu-west-1.amazonaws.com/prismnetai/db
+docker push 094840068990.dkr.ecr.eu-west-1.amazonaws.com/prismnetai/db
+
+# MySQL
+docker tag prismnetai-web:local 094840068990.dkr.ecr.eu-west-1.amazonaws.com/prismnetai/web
+docker push 094840068990.dkr.ecr.eu-west-1.amazonaws.com/prismnetai/web
