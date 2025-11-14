@@ -264,7 +264,6 @@ For support and questions:
 # Build
 docker build -f docker/prismnetai-db.Dockerfile -t prismnetai-db:latest .
 
-# Test
 # Stop & remove any existing container named kingston-db
 docker rm -f prismnetai-db || true
 
@@ -281,5 +280,21 @@ docker run -d \
 
 
 ### Docker Build - Web
+# Build
+docker build -f docker/prismnetai-web.Dockerfile -t prismnetai-web:local .
 
-### Docker Run - Web
+# Stop & remove any existing container named kingston-db
+docker rm -f prismnetai-web || true
+
+# Run the container (mapping port 3306); because the SQL scripts are included,
+# they will run on first startup to create/populate the `kingston` database.
+
+docker run --rm -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL="jdbc:mysql://host.docker.internal:3306/prismnetai?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true" \
+  -e OPENAI_API_KEY="xx" \
+  -e OPENROUTER_API_KEY="xx" \
+  -e ANTHROPIC_API_KEY="xx" \
+  -e PRISMNETAI_ADMIN_CLIENT="admin" \
+  -e SERVER_PORT=8080 \
+  --name prismnetai-web \
+  prismnetai-web:local
