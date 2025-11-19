@@ -68,14 +68,14 @@ public class PreferredModelRoutingStrategy implements RoutingStrategy {
         String providerName = parts[0];
         String modelId = parts[1];
 
-        // Find provider by name
-        Optional<Provider> providerOpt = providerRepository.findByName(providerName);
-        if (providerOpt.isEmpty()) {
-            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Provider not found: {}", providerName);
+        // Find active providers by name
+        List<Provider> providers = providerRepository.findByNameAndIsActiveTrue(providerName);
+        if (providers.isEmpty()) {
+            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - No active provider found: {}", providerName);
             return Optional.empty();
         }
 
-        Provider provider = providerOpt.get();
+        Provider provider = providers.get(0);
 
         // Check if provider is available
         if (!availableProviders.contains(provider)) {

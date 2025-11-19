@@ -97,8 +97,9 @@ public class OpenAiProviderService implements AiProviderService {
      * @return the OpenAI request payload as a map
      */
     private Map<String, Object> buildOpenAiRequest(ChatCompletionRequest request, AiRequest aiRequest) {
-        log.info("OpenAiProviderService.buildOpenAiRequest() - Building OpenAI request for model: {}", aiRequest.getSelectedModel().getModelId());
-
+        String providerModelKey = aiRequest.getSelectedProvider().getName().toLowerCase() + "/" + aiRequest.getSelectedModel().getModelId();
+        log.info("OpenAiProviderService.buildOpenAiRequest() - Building OpenAI request for model: {}", providerModelKey);
+        // TODO Need to fix strategy for passing model value
         return Map.of(
             "model", aiRequest.getSelectedModel().getModelId(),
             "messages", request.getMessages(),
@@ -185,10 +186,11 @@ public class OpenAiProviderService implements AiProviderService {
      * @return the OpenAI streaming request payload as a map
      */
     private Map<String, Object> buildOpenAiStreamingRequest(ChatCompletionRequest request, AiRequest aiRequest) {
-        log.info("OpenAiProviderService.buildOpenAiStreamingRequest() - Building OpenAI streaming request for model: {}", aiRequest.getSelectedModel().getModelId());
+        String providerModelKey = aiRequest.getSelectedProvider().getName().toLowerCase() + "/" + aiRequest.getSelectedModel().getModelId();
+        log.info("OpenAiProviderService.buildOpenAiStreamingRequest() - Building OpenAI streaming request for model: {}", providerModelKey);
 
         return Map.of(
-            "model", aiRequest.getSelectedModel().getModelId(),
+            "model", providerModelKey,
             "messages", request.getMessages(),
             "max_tokens", request.getMaxTokens() != null ? request.getMaxTokens() : 100,
             "temperature", request.getTemperature() != null ? request.getTemperature() : BigDecimal.valueOf(1.0),

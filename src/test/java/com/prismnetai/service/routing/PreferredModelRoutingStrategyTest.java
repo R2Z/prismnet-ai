@@ -161,7 +161,7 @@ class PreferredModelRoutingStrategyTest {
         // Given
         String preferredModel = "OpenAI/gpt-4";
 
-        when(providerRepository.findByName("OpenAI")).thenReturn(Optional.of(provider1));
+        when(providerRepository.findByNameAndIsActiveTrue("OpenAI")).thenReturn(List.of(provider1));
         when(modelRepository.findActiveByModelIdAndProvider("gpt-4", provider1)).thenReturn(Optional.of(model1));
 
         // When
@@ -177,7 +177,7 @@ class PreferredModelRoutingStrategyTest {
         // Given
         String preferredModel = "Unknown/gpt-4";
 
-        when(providerRepository.findByName("Unknown")).thenReturn(Optional.empty());
+        when(providerRepository.findByNameAndIsActiveTrue("Unknown")).thenReturn(List.of());
 
         // When
         Optional<Model> result = strategy.selectModel(availableProviders, "user1", preferredModel);
@@ -192,7 +192,7 @@ class PreferredModelRoutingStrategyTest {
         String preferredModel = "OpenAI/gpt-4";
         Provider unavailableProvider = provider2; // provider2 is not in availableProviders for this test
 
-        when(providerRepository.findByName("OpenAI")).thenReturn(Optional.of(unavailableProvider));
+        when(providerRepository.findByNameAndIsActiveTrue("OpenAI")).thenReturn(List.of(unavailableProvider));
 
         // When
         Optional<Model> result = strategy.selectModel(List.of(provider1), "user1", preferredModel);
@@ -206,7 +206,7 @@ class PreferredModelRoutingStrategyTest {
         // Given
         String preferredModel = "OpenAI/unknown-model";
 
-        when(providerRepository.findByName("OpenAI")).thenReturn(Optional.of(provider1));
+        when(providerRepository.findByNameAndIsActiveTrue("OpenAI")).thenReturn(List.of(provider1));
         when(modelRepository.findActiveByModelIdAndProvider("unknown-model", provider1)).thenReturn(Optional.empty());
 
         // When
