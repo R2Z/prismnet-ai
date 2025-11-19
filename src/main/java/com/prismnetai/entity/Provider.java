@@ -44,6 +44,10 @@ public class Provider {
     @Column(nullable = false)
     private Boolean isActive = true;
 
+    @Column(nullable = false)
+    @JoinColumn(name = "is_open_ai_compatible")
+    private Boolean isOpenAiCompatible = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "model_provider_id")
     private ModelProvider modelProvider;

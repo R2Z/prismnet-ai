@@ -75,23 +75,24 @@ public class PreferredModelRoutingStrategy implements RoutingStrategy {
             return Optional.empty();
         }
 
-        Provider provider = providers.get(0);
+        // Check each provider until the desired model is found
+        for (Provider provider : providers) {
+            // Check if provider is available
+            if (!availableProviders.contains(provider)) {
+                log.debug("PreferredModelRoutingStrategy.selectModelWithProvider() - Provider {} not in available providers, skipping", provider.getName());
+                continue;
+            }
 
-        // Check if provider is available
-        if (!availableProviders.contains(provider)) {
-            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Provider {} not in available providers", providerName);
-            return Optional.empty();
+            // Find active model
+            Optional<Model> model = modelRepository.findActiveByModelIdAndProvider(modelId, provider);
+            if (model.isPresent()) {
+                log.info("PreferredModelRoutingStrategy.selectModelWithProvider() - Selected model: {} from provider: {}", modelId, provider.getName());
+                return model;
+            }
         }
 
-        // Find active model
-        Optional<Model> model = modelRepository.findActiveByModelIdAndProvider(modelId, provider);
-        if (model.isEmpty()) {
-            log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Model {} not found for provider {}", modelId, providerName);
-            return Optional.empty();
-        }
-
-        log.info("PreferredModelRoutingStrategy.selectModelWithProvider() - Selected model: {} from provider: {}", modelId, providerName);
-        return model;
+        log.warn("PreferredModelRoutingStrategy.selectModelWithProvider() - Model {} not found for any provider {}", modelId, providerName);
+        return Optional.empty();
     }
 
     private Optional<Model> selectModelLegacy(List<Provider> availableProviders, String preferredModel) {

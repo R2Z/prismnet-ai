@@ -97,11 +97,10 @@ public class OpenAiProviderService implements AiProviderService {
      * @return the OpenAI request payload as a map
      */
     private Map<String, Object> buildOpenAiRequest(ChatCompletionRequest request, AiRequest aiRequest) {
-        String providerModelKey = aiRequest.getSelectedProvider().getName().toLowerCase() + "/" + aiRequest.getSelectedModel().getModelId();
-        log.info("OpenAiProviderService.buildOpenAiRequest() - Building OpenAI request for model: {}", providerModelKey);
-        // TODO Need to fix strategy for passing model value
+        String modelName = getModelName(aiRequest);
+        log.info("OpenAiProviderService.buildOpenAiRequest() - Building OpenAI request for model: {}", modelName);
         return Map.of(
-            "model", aiRequest.getSelectedModel().getModelId(),
+            "model", modelName,
             "messages", request.getMessages(),
             "max_tokens", request.getMaxTokens() != null ? request.getMaxTokens() : 100,
             "temperature", request.getTemperature() != null ? request.getTemperature() : BigDecimal.valueOf(1.0)
@@ -186,16 +185,31 @@ public class OpenAiProviderService implements AiProviderService {
      * @return the OpenAI streaming request payload as a map
      */
     private Map<String, Object> buildOpenAiStreamingRequest(ChatCompletionRequest request, AiRequest aiRequest) {
-        String providerModelKey = aiRequest.getSelectedProvider().getName().toLowerCase() + "/" + aiRequest.getSelectedModel().getModelId();
-        log.info("OpenAiProviderService.buildOpenAiStreamingRequest() - Building OpenAI streaming request for model: {}", providerModelKey);
+        String modelName = getModelName(aiRequest);
+        log.info("OpenAiProviderService.buildOpenAiStreamingRequest() - Building OpenAI streaming request for model: {}", modelName);
 
         return Map.of(
-            "model", providerModelKey,
+            "model", modelName,
             "messages", request.getMessages(),
             "max_tokens", request.getMaxTokens() != null ? request.getMaxTokens() : 100,
             "temperature", request.getTemperature() != null ? request.getTemperature() : BigDecimal.valueOf(1.0),
             "stream", true
         );
+    }
+
+    /**
+     * Determines the model name to use in the API request based on provider compatibility.
+     *
+     * @param aiRequest the AI request entity
+     * @return the model name string
+     */
+    private String getModelName(AiRequest aiRequest) {
+        String modelId = aiRequest.getSelectedModel().getModelId();
+        if (aiRequest.getSelectedProvider().getIsOpenAiCompatible()) {
+            return aiRequest.getSelectedProvider().getName().toLowerCase()+ "/" + modelId;
+        } else {
+            return modelId;
+        }
     }
 
     /**
