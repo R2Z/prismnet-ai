@@ -3,6 +3,9 @@
 
 USE prismnetai;
 
+ALTER TABLE provider DROP KEY name;
+
+
 -- Add is_openai_compatible column with default false
 ALTER TABLE provider ADD COLUMN is_openai_compatible BOOLEAN NOT NULL DEFAULT FALSE;
 
